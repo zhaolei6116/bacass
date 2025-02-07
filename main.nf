@@ -1,0 +1,46 @@
+#!/usr/bin/env nextflow
+nextflow.enable.dsl=2
+
+// println params
+
+
+// import subworkflows
+include { ingress_flow } from "./workflows/ingress.nf"
+
+include { raw;
+          clean;
+          decontamination;
+          denovo;
+          report;
+          release;
+} from "./workflows/analysis"
+
+
+
+
+// workflow {
+//        def ch_samples = ingress_flow()
+//        def ch_nanostat_result = nanostat(ch_samples.samples)
+//        def ch_fastcat_result = fastcat(ch_nanostat_result.sample_info_tuple1)
+//        def ch_ont_barcoder_result = ont_barcoder(ch_fastcat_result.sample_info_tuple2)
+
+//       //  ch_fastcat_result.sample_info_map2.subscribe {out -> println "$out"}
+      
+// }
+
+workflow {
+   def ch_samples = ingress_flow()
+   def ch_raw_result = raw(ch_samples)
+   def ch_clean_result = clean(ch_raw_result)
+   def ch_decontamination_result = decontamination(ch_clean_result)
+   def ch_denovo_result = denovo(ch_decontamination_result)
+   def ch_report_result = report(ch_denovo_result)
+   release(ch_report_result)
+   release.out.view()
+   
+   // ch_report_result.subscribe { println "Updated Map => $it" }
+}
+
+
+
+

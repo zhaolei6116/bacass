@@ -1,0 +1,9 @@
+{
+  "log_dir": "logs",
+  "backup_dir": "backup",
+  "java_jar": "/bioinformation/Project/FTGS_bj/script/CwbioRequestDataLims.V2.jar",
+  "java_config": "/bioinformation/Project/FTGS_bj/script/config/config.properties.BJ",
+  "java": "/data/software/miniconda/bin/java",
+  "START_OFFSET": 10,
+  "CHECK_INTERVAL":3600
+}
