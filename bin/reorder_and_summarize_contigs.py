@@ -107,9 +107,5 @@ def setup_args():
 
 
 if __name__ == '__main__':
-    args = setup_args()
-    # 使用这个函数
-    # long_reads_circ = get_long_reads_circ(args.stats_file) 
+    args = setup_args() 
     process_fasta_and_stats(args.fasta_file, args.stats_file, args.chunk_size, args.prefix)
-
-# process_fasta_and_stats(args.fasta_file, args., args.chunk_size)

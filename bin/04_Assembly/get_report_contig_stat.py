@@ -2,7 +2,7 @@
 
 import argparse
 import csv
-
+from collections import namedtuple
 
 __version__ = "v0.0.1"
 __date__    = "2024.11.25"
@@ -39,6 +39,24 @@ def cov_dep_parse(infile):
     
     return cov_dep
 
+def get_circ_info(infile):
+    circs = {} 
+    with open(infile,  newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile, delimiter='\t')
+        print(reader)
+        print(reader.fieldnames)
+        # 修改表头字段名，去掉开头的 '#' 和结尾的 '.'
+        new_fieldnames = [field.lstrip('#').rstrip('.') for field in reader.fieldnames]
+        print(new_fieldnames)
+
+        for row in reader:
+             circs[row['new_seq_name']] = row['circ.']
+        
+    return circs
+
+
+
+
 
 def format_number_str(num_str):
     num = float(num_str)  # 将字符串转换为浮点数
@@ -52,14 +70,14 @@ def format_number_str(num_str):
 
 
 
-def get_result(gc_ratio, contig_list, cov_dep, outfile):
+def get_result(gc_ratio, contig_list, cov_dep, circs, outfile):
 
-    head_line = ["Contig", "Length", "GC content(%)", "Coverage", "Sequence depth(X)"]
+    head_line = ["Contig", "Length", "GC content(%)", "Coverage", "Sequence depth(X)", "Circular"]
 
     with open(outfile, "w") as outF:
         outF.write("\t".join(head_line) + "\n")
         for contig in contig_list:
-            temp_list = [contig, cov_dep[contig]['length'], str(gc_ratio[contig]), cov_dep[contig]['cov'], cov_dep[contig]['dep']]
+            temp_list = [contig, cov_dep[contig]['length'], str(gc_ratio[contig]), cov_dep[contig]['cov'], cov_dep[contig]['dep'], circs[contig]]
             outF.write("\t".join(temp_list) + "\n")
     
 
@@ -70,6 +88,7 @@ def setup_args():
     parser.add_argument('-v','--version', action='version', version=f'%(prog)s {__version__}')
     parser.add_argument('-gc', type=str, help='The path to gc stat', required = True)
     parser.add_argument('-cov', type=str, help='The path to cov and depth stat', required = True)
+    parser.add_argument('-circ', type=str, help='The path to flye stat', required = True)
     parser.add_argument('-o', type=str, help='output file', default="contig_stat.xls")
     args = parser.parse_args()
 
@@ -80,7 +99,8 @@ def main():
     args = setup_args()
     gc_ratio, contig_list = gc_parse(args.gc)
     cov_dep = cov_dep_parse(args.cov)
-    get_result(gc_ratio, contig_list, cov_dep, args.o)
+    circs = get_circ_info(args.circ)
+    get_result(gc_ratio, contig_list, cov_dep, circs, args.o)
 
 
 

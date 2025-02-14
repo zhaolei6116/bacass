@@ -185,7 +185,7 @@ workflow denovo {
 
     // medakaHdf(splitRegions_out_ch, "consensus")
     medakaHdf(sample_info_and_regin_ch, "consensus")
-    medakaHdf_out_ch = medakaHdf.out.info_hdf_tuple.groupTuple().view()   //队列中每个channel [sample_info_map, region1, region2 ……]
+    medakaHdf_out_ch = medakaHdf.out.info_hdf_tuple.groupTuple()   //队列中每个channel [sample_info_map, region1, region2 ……]
 
     
     medakaConsensus_out_ch = medakaConsensus(medakaHdf_out_ch)
@@ -193,15 +193,16 @@ workflow denovo {
     re_align(medakaConsensus_out_ch.sample_info_tuple)
     assembly_stat(re_align.out.sample_info_tuple)
     assembly_stat_out_ch =  assembly_stat.out.sample_info_tuple
-                         .map {samples_info, medaka_consence, consence_bam, genome_stat, contig_stat, depth_png -> 
-                         samples_info + ["medaka_consence":medaka_consence , "consence_bam":consence_bam, "genome_stat":genome_stat, "contig_stat":contig_stat, "depth_png":depth_png]
+                         .map {samples_info, medaka_consence, consence_bam, genome_stat, contig_stat, depth_png, replicon -> 
+                         samples_info + ["medaka_consence":medaka_consence , "consence_bam":consence_bam, "genome_stat":genome_stat, "contig_stat":contig_stat, "depth_png":depth_png,
+                         "replicon":replicon]
                          }
 
     
     bakata(assembly_stat_out_ch)
     bakata_out_ch = bakata.out.sample_info_tuple
-                      .map { samples_info, circle_png ->
-                      samples_info + ["circos_png":circle_png]
+                      .map { samples_info, circle_png, cds_tsv->
+                      samples_info + ["circos_png":circle_png, "cds_tsv":cds_tsv]
                       }
     
   emit:

@@ -520,38 +520,6 @@ process medakaVariant {
     """
 }
 
-process bakata {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/05_Genome_Annotion/",  mode: "rellink", overwrite: true
-  errorStrategy  { return 'retry'}
-  maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
-
-  input:
-      val(sample_info_map)
-
-  output:
-      tuple val(sample_info_map), path("${sample_info_map.sample_name}.png"), emit: sample_info_tuple
-      path("*")
-
-
-  // beforeScript = "source /nas02/software/conda/Miniconda3/miniconda3/bin/activate /nas02/project/zhaolei/software/conda/conda_env/bakta/"
-
-  script:
-  def species_name = sample_info_map.species_name.replace(' ', '_')
-
-  """
-  source /nas02/software/conda/Miniconda3/miniconda3/bin/activate /nas02/project/zhaolei/software/conda/conda_env/bakta/
-  /nas02/project/zhaolei/software/conda/conda_env/bakta/bin/bakta \
-    -d ${params.database.bakata_db} \
-    -f \
-    -p ${sample_info_map.sample_name} \
-    -o ./ \
-    --species ${species_name} \
-    --complete \
-    --threads 10 \
-    ${sample_info_map.medaka_consence}
-  """
-}
 
 process re_align_bac {
   publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/04_Assembly/Realign",  mode: "rellink", overwrite: true
@@ -630,7 +598,7 @@ process assembly_stat {
     tuple val(sample_info_map),path(medaka_consence),path(consence_bam)
 
   output:
-    tuple val(sample_info_map),path(medaka_consence), path(consence_bam), path("${sample_info_map.sample_name}_genome_stat.tsv"), path("${sample_info_map.sample_name}_contig_stat.xls"), path("output_figures/${sample_info_map.sample_name}-${sample_info_map.longest_contig}.coverage.png"), emit:sample_info_tuple
+    tuple val(sample_info_map),path("${sample_info_map.sample_name}_assembly.fna"), path(consence_bam), path("${sample_info_map.sample_name}_genome_stat.tsv"), path("${sample_info_map.sample_name}_contig_stat.xls"), path("output_figures/${sample_info_map.sample_name}-${sample_info_map.longest_contig}.coverage.png"),path("${sample_info_map.sample_name}_replicon.tsv"), emit:sample_info_tuple
     path("*")
 
 
@@ -638,18 +606,24 @@ process assembly_stat {
 
   script:
   """
-  # 统计基因组信息
-  ${params.software.assembly_stats} -t ${medaka_consence} > assembly_stats.tsv
-  get_report_assembly_stat.py assembly_stats.tsv  ${sample_info_map.sample_name}_genome_stat.tsv
-
   #gc
   ${params.software.seqtk} comp ${medaka_consence}  | cut -f1,2,3,4,5,6  > assembly_gc.list
+  
   #cov and dep, for contig 整体的
   ${params.software.samtools}  coverage  ${consence_bam}  -o ${sample_info_map.sample_name}_cov_dep.stat
+  
   # contig info summary
-  get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_name}_cov_dep.stat -o ${sample_info_map.sample_name}_contig_stat.xls
+  get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_name}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_name}_contig_stat1.xls
+  contig_filter_and_sort.py --contig_stat  ${sample_info_map.sample_name}_contig_stat1.xls  --in_fna  ${medaka_consence} --out_fna ${sample_info_map.sample_name}_assembly.fna  --out_stat  ${sample_info_map.sample_name}_contig_stat.xls
+  get_bakta_replicon.py -i ${sample_info_map.sample_name}_contig_stat.xls -o ${sample_info_map.sample_name}_replicon.tsv
 
-  ${params.software.faidx}  ${medaka_consence} -i   chromsizes > genome.size
+
+  # 统计基因组信息
+  ${params.software.assembly_stats} -t ${sample_info_map.sample_name}_assembly.fna > assembly_stats.tsv
+  get_report_assembly_stat.py assembly_stats.tsv  ${sample_info_map.sample_name}_genome_stat.tsv
+
+
+  ${params.software.faidx}  ${sample_info_map.sample_name}_assembly.fna  -i   chromsizes > genome.size
   ${params.software.bedtools} makewindows -g genome.size  -w ${params.dep_png_bin_size}  > dep_bin.bed
   ${params.software.bedtools} coverage  -a dep_bin.bed  -b ${consence_bam} -mean  > bed_mean_cov.txt
   plot_depth.py bed_mean_cov.txt output_figures ${sample_info_map.sample_name}
@@ -706,6 +680,40 @@ process depth_stat_png {
 
 }
 
+process bakata {
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/05_Genome_Annotion/",  mode: "rellink", overwrite: true
+  errorStrategy  { return 'retry'}
+  maxRetries 2
+  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+
+  input:
+      val(sample_info_map)
+
+  output:
+      tuple val(sample_info_map), path("${sample_info_map.sample_name}.png"), path("${sample_info_map.sample_name}.tsv"), emit: sample_info_tuple
+      path("*")
+
+
+  // beforeScript = "source /nas02/software/conda/Miniconda3/miniconda3/bin/activate /nas02/project/zhaolei/software/conda/conda_env/bakta/"
+
+  script:
+  def species_name = sample_info_map.species_name.replace(' ', '_')
+
+  """
+  source /nas02/software/conda/Miniconda3/miniconda3/bin/activate /nas02/project/zhaolei/software/conda/conda_env/bakta/
+  /nas02/project/zhaolei/software/conda/conda_env/bakta/bin/bakta \
+    -d ${params.database.bakata_db} \
+    -f \
+    -p ${sample_info_map.sample_name} \
+    -o ./ \
+    --species ${species_name} \
+    --replicons ${sample_info_map.replicon} \
+    --complete \
+    --threads 10 \
+    ${sample_info_map.medaka_consence}
+  """
+}
+
 process get_report {
   publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/06_Report/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
@@ -735,7 +743,7 @@ process get_report {
   ln -fs ${sample_info_map.circos_png}  images/genome_circos.png
   ln -fs ${sample_info_map.depth_png}  images/depth_coverage.png
 
-  get_summary.py  -p ${sample_info_map.project_id} -sp "${species_name}"  -s  tables/qc_stat.xls   -a tables/assemble_stat_table.tsv  -o tables/pj_summary.xls
+  get_summary.py  -p ${sample_info_map.project_id} -sp "${species_name}"  -s  tables/qc_stat.xls   -a tables/assemble_stat_table.tsv -cds ${sample_info_map.cds_tsv}   -o tables/pj_summary.xls
   generate_report.py  -p ${sample_info_map.sample_name}_
   """
 
@@ -770,7 +778,7 @@ ln -fs  \${dir}/01_rawdata/${sample_info_map.sample_name}.cut_raw.fastq.gz      
 # ln -fs  ${sample_info_map.qc_stat}                Release/Cleandata
 ln -fs  \${dir}/03_Decontamination/top10.tsv        Release/Decontamination
 # ln -fs    \${dir}/04_Assembly/${sample_info_map.sample_name}_updated_flye_stat.tsv             Release/Assembly/
-ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_name}.medaka.order.fasta        Release/Assembly/${sample_info_map.sample_name}.fasta
+ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_name}_assembly.fna        Release/Assembly/
 ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_name}_genome_stat.tsv           Release/Assembly/
 ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_name}_contig_stat.xls           Release/Assembly/
 ln -fs    \${dir}/04_Assembly/Realign/output_figures                           Release/Assembly/
