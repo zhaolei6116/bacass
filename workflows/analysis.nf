@@ -1,7 +1,9 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-include { nanostat; 
+include { nanostat1;
+          nanostat2;
+          filtlong1; 
           fastcat; 
           ont_barcoder;
           fastplong;
@@ -31,17 +33,25 @@ workflow raw {
     samples_map
   
   main:
+    nanostat1(samples_map)
+
     fastcat(samples_map)
     fastcat_out_ch = fastcat.out.sample_info_tuple
-
-    cut_data(fastcat_out_ch)
-    cut_data_out_ch = cut_data.out.sample_info_tuple
+    
+    filtlong1(fastcat_out_ch)
+    filtlong1_out_ch = filtlong1.out.sample_info_tuple
                     .map {samples_info, raw_data ->
                           samples_info + ["raw_data" : raw_data.toString()]
                         }
 
-    nanostat(cut_data_out_ch)
-    nanostat_out_ch = nanostat.out.sample_info_tuple
+    // cut_data(fastcat_out_ch)
+    // cut_data_out_ch = cut_data.out.sample_info_tuple
+    //                 .map {samples_info, raw_data ->
+    //                       samples_info + ["raw_data" : raw_data.toString()]
+    //                     }
+
+    nanostat2(filtlong1_out_ch)
+    nanostat2_out_ch = nanostat2.out.sample_info_tuple
                         .map {samples_info, raw_qc  ->
                           samples_info + ["raw_qc":raw_qc.toString()]
                         }
@@ -53,7 +63,7 @@ workflow raw {
     //                       samples_info + ["raw_data" : raw_data.toString()]
     //                     }
   emit:
-    raw_out_ch = nanostat_out_ch
+    raw_out_ch = nanostat2_out_ch
 
 }
 

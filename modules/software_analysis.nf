@@ -1,5 +1,28 @@
 nextflow.enable.dsl=2
 
+process nanostat1 {
+  
+  publishDir path:"${params.out_dir}/${sample_info_map.sample_id}/01_rawdata/", mode: "rellink", overwrite: true
+  errorStrategy  { return 'retry'}
+  maxRetries 2
+  tag "${sample_info_map.sample_name}.Try${task.attempt}" 
+
+  input:
+    val sample_info_map
+
+  output:
+    tuple val(sample_info_map), path("${sample_info_map.sample_name}_raw_stat.tsv"),  emit: sample_info_tuple
+      
+
+  script:
+  def fastq_path = sample_info_map.barcode ? "${sample_info_map.fastq_path}/${sample_info_map.barcode}/" : "${sample_info_map.fastq_path}/"
+    
+    """
+    ${params.software.nanostat} --fastq  $fastq_path/*fastq.gz  --tsv -t 5 -n ${sample_info_map.sample_name}_raw_stat.tsv
+    """
+
+}
+
 process fastcat {
   publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/01_rawdata/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
@@ -34,6 +57,29 @@ process fastcat {
 
 }
 
+process filtlong1 {
+  publishDir path:"${params.out_dir}/${sample_info_map.sample_id}/01_rawdata/", mode: "rellink", overwrite: true
+  errorStrategy  { return 'retry'}
+  maxRetries 2
+  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+
+  input:
+    tuple val(sample_info_map), path(rawdata)
+  
+  output:
+    tuple val(sample_info_map), path("${sample_info_map.sample_name}.cut_raw.fastq.gz"), emit:sample_info_tuple
+
+  script:
+    """
+    ${params.software.filtlong} \
+      --min_length 3000 \
+      --keep_percent 85 \
+      --min_mean_q 15 \
+      ${rawdata} |  gzip > ${sample_info_map.sample_name}.cut_raw.fastq.gz
+    """
+
+}
+
 process cut_data {
   publishDir path:"${params.out_dir}/${sample_info_map.sample_id}/01_rawdata/", mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
@@ -56,7 +102,7 @@ process cut_data {
   """
 }
 
-process nanostat {
+process nanostat2 {
   
   publishDir path:"${params.out_dir}/${sample_info.sample_id}/01_rawdata/", mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
@@ -67,13 +113,13 @@ process nanostat {
     val sample_info
 
   output:
-    tuple val(sample_info), path("${sample_info.sample_name}_raw_stat.tsv"),  emit: sample_info_tuple
+    tuple val(sample_info), path("${sample_info.sample_name}_cut_raw_stat.tsv"),  emit: sample_info_tuple
       
 
   script:
     
     """
-    ${params.software.nanostat} --fastq  ${sample_info.raw_data}  --tsv -t 5 -n ${sample_info.sample_name}_raw_stat.tsv
+    ${params.software.nanostat} --fastq  ${sample_info.raw_data}  --tsv -t 5 -n ${sample_info.sample_name}_cut_raw_stat.tsv
     """
 
 }
