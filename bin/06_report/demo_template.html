@@ -565,7 +565,7 @@ pre {
                         </li>
                         <li>
                             <a href="#b">
-                                2 分析流程
+                                2 检测流程
                             </a>
                         </li>
                         <li>
@@ -602,39 +602,59 @@ pre {
 
                             </ul>
                         </li>
+
                         <li>
-                            <a href="#d">
-                                4 分析方法
+                            <a href="#g">
+                                4 实验方法
                             </a>
                             <ul class="nav">
                                 <li>
-                                    <a href="#d_1">4.1 数据污染检测</a>
+                                    <a href="#g_1">4.1 基因组DNA提取及质控</a>
                                 </li>
 
                                 <li>
-                                    <a href="#d_2">4.2 基因组组装</a>
+                                    <a href="#g_2">4.2 Nanopore文库构建</a>
+                                </li>
+                                <li>
+                                    <a href="#g_3">4.3 Nanopore测序</a>
+                                </li>
+                                
+                            </ul>
+                        </li>
+
+                        <li>
+                            <a href="#d">
+                                5 分析方法
+                            </a>
+                            <ul class="nav">
+                                <li>
+                                    <a href="#d_1">5.1 数据污染检测</a>
+                                </li>
+
+                                <li>
+                                    <a href="#d_2">5.2 基因组组装</a>
                                     <ul class="nav">
-                                        <li><a href="#d_2_1">4.1.1 基因组组装</a></li>
-                                        <li><a href="#d_2_2">4.1.2 基因组测序深度分析</a></li>
+                                        <li><a href="#d_2_1">5.1.1 基因组组装</a></li>
+                                        <li><a href="#d_2_2">5.1.2 基因组测序深度分析</a></li>
                                     </ul>
                                 </li>
                                 <li>
-                                    <a href="#d_3">4.3 基因组结构注释</a>
+                                    <a href="#d_3">5.3 基因组结构注释</a>
                                 </li>
                                 <li>
-                                    <a href="#d_4">4.4 基因组圈图</a>
+                                    <a href="#d_4">5.4 基因组圈图</a>
                                 </li>
                             </ul>
                         </li>
                         <li>
                             <a href="#e">
-                                5 软件及参数
+                                6 软件及参数
                             </a>
                         </li>
 
                         <li>
                             <a href="#f">
-                                6 联系我们
+                                7 联系我们
                             </a>
                         </li>
 
@@ -671,14 +691,14 @@ pre {
                         
                     </div>
 
-                    <!--b 分析流程-->
+                    <!--b 检测流程-->
                     <div class="page">
-                        <h3 id="b" class="page-header">2 分析流程</h3>
+                        <h3 id="b" class="page-header">2 检测流程</h3>
                         <div class="content_img">
-                            <img id="pipeline_png" height='450' alt="分析流程图">
+                            <img id="pipeline_png" height='450' alt="检测流程图">
                         </div>
                     </div>
-                    <h6>图2.1 生物信息分析流程图</h6>
+                    <h6>图2.1 检测流程图</h6>
 
 
                     <!-- 分析结果 -->
@@ -756,34 +776,52 @@ pre {
 
                     </div>
 
+                    <div class="page">
+                        <h3 id="g" class="page-header">4 实验方法</h3>
+                        <h4 id="g_1">4.1 基因组DNA提取及质控</h4>
+                        <p>
+                            使用康为世纪细菌基因组DNA提取试剂盒进行提取，用琼脂糖凝胶电泳检测基因组DNA完整性，Nanodrop检测DNA纯度，使用Qubit检测DNA浓度，评估样本质量是否适合进行后续实验。
+                        </p>
+                        <h4 id="g_2">4.2 Nanopore文库构建</h4>
+                        <p>
+                            提取好的基因组DNA进行纯化后，直接连接barcode及测序接头完成测序文库构建。
+                        </p>
+                        <h4 id="g_3">4.3 Nanopore测序</h4>
+                        <p>
+                            将构建好的测序文库加载到测序芯片上，使用Oxford Nanopore Technologies纳米孔测序平台进行测序。其测序核心原理是基于生物蛋白形成的纳米级孔道：当带负电的核酸链在电场驱动下穿过孔道时，不同碱基（A/T/C/G）或化学修饰（如甲基化）会因空间构型及带电特性的差异，对穿过纳米孔的离子流产生特异性阻碍，形成独特的电流信号波动。这些实时记录的电流变化经机器学习算法解码后，即可转化为对应的核酸序列。测序芯片上有上千纳米孔，DNA分子加载到芯片上后，即可被纳米孔捕获，在解旋酶的作用下匀速通过纳米孔。
+                        </p>
+
+                    </div>
+
+
                     <!-- 分析方法 -->
                     <div class="page">
-                        <h3 id="d" class="page-header">4 分析方法</h3>
+                        <h3 id="d" class="page-header">5 分析方法</h3>
                         
-                        <h4 id="d_1">4.1 数据污染检测</h4>
+                        <h4 id="d_1">5.1 数据污染检测</h4>
                         <p>
                             微生物通常生长复杂的微环境中，提取部分寄生性微生物的DNA时，有可能混入宿主或者环境内其他生物的DNA， 因此需要对数据进行污染评估。使用质控后的reads，使用kraken2软件与nt库进行比对，统计占比top10的物种。
                         </p>
-                        <h4 id="d_2">4.2 基因组组装</h4>
-                        <h5 id="d_2_1">4.2.1 基因组组装</h5>
+                        <h4 id="d_2">5.2 基因组组装</h4>
+                        <h5 id="d_2_1">5.2.1 基因组组装</h5>
                         <p>
                             质控或者去除宿主污染之后的clean data文件使用组装软件进行基因组的组装。可以选择Flye，
                             raven或者Canu软件进行基因组组装，使用medaka软件对基因组的矫正。矫正后的基因组使用自编脚本检测是否为环状基因组，去除末端的overlap重复区域的冗余部分，
                             对成环的基因组检测起始基因，固定起点位置，从而得到最终的基因组序列。
                         </p>
 
-                        <h5 id="d_2_2">4.2.2 基因组测序深度分析</h5>
+                        <h5 id="d_2_2">5.2.2 基因组测序深度分析</h5>
                         <p>
                             将质控后的fastq格式的reads文件的用minimap2软件比对到组装好的基因组上，
                             用samtools 软件的depth功能统计各个位点的测序深度，并以1000 bp为窗口计算
                             各个窗口的平均测序深度并作图。可以根据此图判断数据的测序深度。
                         </p>
 
-                        <h4 id="d_3">4.3 基因组结构注释</h4>
+                        <h4 id="d_3">5.3 基因组结构注释</h4>
                         <p>
                             使用Bakata 对组装的基因组进行结构注释， 结果包含 CDs，tRNA，rRNA，ncRNA等。
                         </p>
-                        <h4 id="d_4">4.4 基因组圈图</h4>
+                        <h4 id="d_4">5.4 基因组圈图</h4>
                         <p>
                             首先将基因组序列，基因预测及非编码 RNA 的预测信息整合成标准的 GBK（GenBank）格式文件，
                             然后采用 circos软件绘制该基因组的圈图。从内到外，第一圈代表刻度；第二圈代表 GC Skew；
@@ -794,9 +832,9 @@ pre {
 
                     <!-- 软件 -->
                     <div class="page">
-                        <h3 id="e" class="page-header">5 软件及参数</h3>
+                        <h3 id="e" class="page-header">6 软件及参数</h3>
                         <p>生物信息分析所用的软件及数据库信息如下。</p>
-                        <h6> Table5.1 分析所用软件信息</h6>
+                        <h6> Table6.1 分析所用软件信息</h6>
                         <div class="content_table">
                             {{software_table | safe}}
                         </div>
