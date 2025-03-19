@@ -42,10 +42,10 @@ def get_result(pjid, spname, dict_seq_info, dict_assembly_info, file_o, cds_coun
     获取输出结果
     '''
     out_dict = {}
-    out_list = ["项目编号", "物种名称", "测序平台", "测序数据量(bp)", "Reads条数", "最长Reads(bp)", "基因组大小(bp)", "contig 个数", "原始测序深度(X)", "预测基因个数"]
+    out_list = ["项目编号", "预期物种", "测序平台", "测序数据量(bp)", "Reads条数", "最长Reads(bp)", "基因组大小(bp)", "contig 个数", "原始测序深度(X)", "预测基因个数"]
 
     out_dict["项目编号"] = pjid
-    out_dict["物种名称"] = spname if spname != "_" else "bacteria"
+    out_dict["预期物种"] = spname if spname != "_" else "bacteria"
     out_dict["测序平台"] = "ONT"
     out_dict["测序数据量(bp)"] = dict_seq_info["Number of base"]
     out_dict["Reads条数"] = dict_seq_info["Number of Reads"]

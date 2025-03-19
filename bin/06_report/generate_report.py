@@ -15,11 +15,11 @@ __author__  = "zhaolei"
 
 
 class ReportGenerator:
-    def __init__(self, config_path, template_path):
+    def __init__(self, config_path, template_path, sample_id):
         self.config = self._parse_config(config_path)
         self.env = Environment(loader=FileSystemLoader(os.path.dirname(template_path)))
         self.template = self.env.get_template(os.path.basename(template_path))
-        self.data = self._process_config_attributes()
+        self.data = self._process_config_attributes(sample_id)
         
     def _parse_config(self, config_path):
         """解析配置文件并返回配置对象"""
@@ -27,7 +27,7 @@ class ReportGenerator:
         config.read(config_path, encoding='utf-8')
         return config['ReportConfig']
 
-    def _process_config_attributes(self):
+    def _process_config_attributes(self, sample_id):
         """根据属性名规则处理表格和图片，生成渲染所需的数据字典"""
         data = {}
         
@@ -42,6 +42,7 @@ class ReportGenerator:
             else:
                 data[key] = value
         data["report_date"] = datetime.now().strftime('%Y-%m-%d')
+        data["sample_id"] = sample_id
 
         # print(data.keys(), data["report_date"])
         return data
@@ -94,7 +95,7 @@ def setup_args():
     parser.add_argument('-v','--version', action='version', version=f'%(prog)s {__version__}')
     parser.add_argument('-c', '--config', type=str, help='The path to config',  default=script_dir+"/config.ini") 
     parser.add_argument('-t', '--template', type=str, help='The path to template report', default=script_dir+"/demo_template.html")
-    parser.add_argument('-p', '--prefix', type=str, help='output file prefix, 一般为项目号', default=None)
+    parser.add_argument('-p', '--prefix', type=str, help='output file prefix, 一般为项目号', default="sample")
     args = parser.parse_args()
 
     return args, script_dir
@@ -108,12 +109,12 @@ def main():
     out_prefix = args.prefix
 
     if out_prefix:
-        output_path = os.getcwd()+ "/" + out_prefix + "report.html"
+        output_path = os.getcwd()+ "/" + out_prefix + "_report.html"
     else:
         output_path = os.getcwd() + "/" + "report.html"
     
 
-    report_generator = ReportGenerator(config_path, template_path)
+    report_generator = ReportGenerator(config_path, template_path, out_prefix)
     report_generator.render_to_html(output_path)
 
 # 使用示例
