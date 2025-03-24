@@ -15,6 +15,8 @@ include { raw;
           release;
 } from "./workflows/analysis"
 
+include { gene_anno } from "./workflows/gene_func_anno.nf"
+
 
 
 
@@ -29,14 +31,21 @@ include { raw;
 // }
 
 workflow {
-   def ch_samples = ingress_flow()
+   def ch_samples = ingress_flow().view()
    def ch_raw_result = raw(ch_samples)
    def ch_clean_result = clean(ch_raw_result)
    def ch_decontamination_result = decontamination(ch_clean_result)
-   def ch_denovo_result = denovo(ch_decontamination_result)
-   def ch_report_result = report(ch_denovo_result)
-   release(ch_report_result)
-   release.out.view()
+   def ch_denovo_result = denovo(ch_decontamination_result).view()
+
+   if (params.anno_analysys){
+      gene_anno(ch_denovo_result)|report
+      report.out|release
+   }else {
+      def ch_report_result = report(ch_denovo_result)
+      release(ch_report_result)
+      release.out.view()
+   }
+   
    
    // ch_report_result.subscribe { println "Updated Map => $it" }
 }

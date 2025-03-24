@@ -1,20 +1,20 @@
 nextflow.enable.dsl=2
 
 process fastcat {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/01_rawdata/",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/01_rawdata/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}" 
+  tag "${sample_info_map.sample_label}.Try${task.attempt}" 
 
   input:
     val sample_info_map
 
   output:
-    tuple val(sample_info_map), path("fastq_chunks/${sample_info_map.sample_name}.raw.fastq.gz"),   emit:sample_info_tuple
+    tuple val(sample_info_map), path("fastq_chunks/${sample_info_map.sample_label}.raw.fastq.gz"),   emit:sample_info_tuple
     path("*")
 
   script:
-  def fastq_path = sample_info_map.barcode ? "${sample_info_map.fastq_path}/${sample_info_map.barcode}/" : "${sample_info_map.fastq_path}/"
+  def fastq_path = sample_info_map.barcode ? "${sample_info_map.fastq_path}/${sample_info_map.barcode}/" : "${sample_info_map.fastq_path}"
 
 
   """
@@ -25,31 +25,31 @@ process fastcat {
 
   fastcat \
   -a 300 -q 10 \
-	-s ${sample_info_map.sample_name} \
+	-s ${sample_info_map.sample_label} \
 	-H  \
 	-f fastcat_stats/per-file-stats.tsv \
 	-r fastcat_stats/per-reads-stats.tsv \
-	$fastq_path | bgzip > fastq_chunks/${sample_info_map.sample_name}.raw.fastq.gz
+	$fastq_path | bgzip > fastq_chunks/${sample_info_map.sample_label}.raw.fastq.gz
   """
 
 }
 
 process cut_data {
-  publishDir path:"${params.out_dir}/${sample_info_map.sample_id}/01_rawdata/", mode: "rellink", overwrite: true
+  publishDir path:"${params.out_dir}/${sample_info_map.sample_label}/01_rawdata/", mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
   
   input:
     tuple val(sample_info_map), path(rawdata)
   
   output:
-    tuple val(sample_info_map), path("${sample_info_map.sample_name}.cut_raw.fastq.gz"), emit:sample_info_tuple
+    tuple val(sample_info_map), path("${sample_info_map.sample_label}.cut_raw.fastq.gz"), emit:sample_info_tuple
 
   script:
   """
   /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/rasusa reads \
-       -o ${sample_info_map.sample_name}.cut_raw.fastq.gz  \
+       -o ${sample_info_map.sample_label}.cut_raw.fastq.gz  \
        -b 1.5G  \
        -O g  \
        ${rawdata}
@@ -58,22 +58,22 @@ process cut_data {
 
 process nanostat {
   
-  publishDir path:"${params.out_dir}/${sample_info.sample_id}/01_rawdata/", mode: "rellink", overwrite: true
+  publishDir path:"${params.out_dir}/${sample_info_map.sample_label}/01_rawdata/", mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info.sample_name}.Try${task.attempt}" 
+  tag "${sample_info_map.sample_label}.Try${task.attempt}" 
 
   input:
-    val sample_info
+    val sample_info_map
 
   output:
-    tuple val(sample_info), path("${sample_info.sample_name}_raw_stat.tsv"),  emit: sample_info_tuple
+    tuple val(sample_info_map), path("${sample_info_map.sample_label}_raw_stat.tsv"),  emit: sample_info_tuple
       
 
   script:
     
     """
-    ${params.software.nanostat} --fastq  ${sample_info.raw_data}  --tsv -t 5 -n ${sample_info.sample_name}_raw_stat.tsv
+    ${params.software.nanostat} --fastq  ${sample_info_map.raw_data}  --tsv -t 5 -n ${sample_info_map.sample_label}_raw_stat.tsv
     """
 
 }
@@ -81,16 +81,16 @@ process nanostat {
 
   
 process ont_barcoder {
-  publishDir path:"${params.out_dir}/${sample_info_map.sample_id}/02_cleandata/", mode: "rellink", overwrite: true
+  publishDir path:"${params.out_dir}/${sample_info_map.sample_label}/02_cleandata/", mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}" 
+  tag "${sample_info_map.sample_label}.Try${task.attempt}" 
 
   input:
     val sample_info_map
 
   output:
-    tuple val(sample_info_map), path("${sample_info_map.sample_name}.clean.fastq.gz"),   emit:sample_info_tuple
+    tuple val(sample_info_map), path("${sample_info_map.sample_label}.clean.fastq.gz"),   emit:sample_info_tuple
     
   
   
@@ -109,26 +109,36 @@ process ont_barcoder {
 	  --enable_trim_barcodes
 
 
-	${params.software.zcat}   \$(find ./clean_fastq/barcode*  -name "*.fastq.gz")| bgzip > ${sample_info_map.sample_name}.clean.fastq.gz
+	${params.software.zcat}   \$(find ./clean_fastq/barcode*  -name "*.fastq.gz")| bgzip > ${sample_info_map.sample_label}.clean.fastq.gz
   """
 
 }
 
 process fastplong {
-  publishDir path:"${params.out_dir}/${sample_info_map.sample_id}/02_cleandata/", mode: "rellink", overwrite: true
+  publishDir path:"${params.out_dir}/${sample_info_map.sample_label}/02_cleandata/", mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
     val sample_info_map
 
   output:
-    tuple val(sample_info_map), path("${sample_info_map.sample_name}.clean.fastq.gz"),  emit:sample_info_tuple
+    tuple val(sample_info_map), path("${sample_info_map.sample_label}.clean.fastq.gz"),  emit:sample_info_tuple
     
   script:
+
+   def adapter = "AAGGTTAA${sample_info_map.barcode_seq}CAGCACCT"
   """
-  ${params.software.fastplong}  -i  ${sample_info_map.raw_data}   -o  ${sample_info_map.sample_name}.clean.fastq.gz  --failed_out  fastplong.failed.fastq.gz   -h  fastplong.html  -j  fastplong.json  -w 4
+  ${params.software.fastplong}  \
+      -i  ${sample_info_map.raw_data}  \
+      -o  ${sample_info_map.sample_label}.clean.fastq.gz   \
+      --trimming_extension 0  \
+      --start_adapter  ${adapter}  \
+      --distance_threshold 0.25  \
+      --length_required 50  \
+      --disable_quality_filtering 
+
   """
     
 }
@@ -136,38 +146,38 @@ process fastplong {
 
 
 process filtlong {
-  publishDir path:"${params.out_dir}/${sample_info_map.sample_id}/02_cleandata/", mode: "rellink", overwrite: true
+  publishDir path:"${params.out_dir}/${sample_info_map.sample_label}/02_cleandata/", mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
     tuple val(sample_info_map), path(cut_clean_data)
   
   output:
-    tuple val(sample_info_map), path("${sample_info_map.sample_name}.clean.filt.fastq.gz"), emit:sample_info_tuple
+    tuple val(sample_info_map), path("${sample_info_map.sample_label}.clean.filt.fastq.gz"), emit:sample_info_tuple
 
   script:
     """
     ${params.software.filtlong} \
       --min_length 1000 \
       --keep_percent 95 \
-      ${cut_clean_data} |  gzip > ${sample_info_map.sample_name}.clean.filt.fastq.gz
+      ${cut_clean_data} |  gzip > ${sample_info_map.sample_label}.clean.filt.fastq.gz
     """
 
 }
 
 process nanoplot {
-  publishDir path:"${params.out_dir}/${sample_info_map.sample_id}/02_cleandata/", mode: "rellink", overwrite: true
+  publishDir path:"${params.out_dir}/${sample_info_map.sample_label}/02_cleandata/", mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}" 
+  tag "${sample_info_map.sample_label}.Try${task.attempt}" 
 
   input:
     val sample_info_map
 
   output:
-  tuple val(sample_info_map), path("${sample_info_map.sample_name}_clean_stat.tsv"), path("nanoplot/${sample_info_map.sample_name}_LengthvsQualityScatterPlot_dot.png"), emit: sample_info_tuple
+  tuple val(sample_info_map), path("${sample_info_map.sample_label}_clean_stat.tsv"), path("nanoplot/${sample_info_map.sample_label}_LengthvsQualityScatterPlot_dot.png"), emit: sample_info_tuple
   path("nanoplot") 
   
 
@@ -185,25 +195,25 @@ process nanoplot {
 	-f png  \
 	--tsv_stats  \
 	-o nanoplot \
-	-p ${sample_info_map.sample_name}_ \
+	-p ${sample_info_map.sample_label}_ \
 	--N50
 
-  mv nanoplot/${sample_info_map.sample_name}_NanoStats.txt  ./${sample_info_map.sample_name}_clean_stat.tsv
+  mv nanoplot/${sample_info_map.sample_label}_NanoStats.txt  ./${sample_info_map.sample_label}_clean_stat.tsv
 
   """
 }
 
 process qc_stat {
-  publishDir path:"${params.out_dir}/${sample_info_map.sample_id}/02_cleandata/", mode: "rellink", overwrite: true
+  publishDir path:"${params.out_dir}/${sample_info_map.sample_label}/02_cleandata/", mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}" 
+  tag "${sample_info_map.sample_label}.Try${task.attempt}" 
   
   input:
     val sample_info_map
 
   output:
-  tuple val(sample_info_map), path("${sample_info_map.sample_name}_qc_stat.xls"), emit: sample_info_tuple
+  tuple val(sample_info_map), path("${sample_info_map.sample_label}_qc_stat.xls"), emit: sample_info_tuple
   
   beforeScript 'source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate'
 
@@ -211,21 +221,21 @@ process qc_stat {
   script:
     
   """  
-  get_qc_stat.py -raw ${sample_info_map.raw_qc}  -clean  ${sample_info_map.clean_qc}   -o ${sample_info_map.sample_name}_qc_stat.xls
+  get_qc_stat.py -raw ${sample_info_map.raw_qc}  -clean  ${sample_info_map.clean_qc}   -o ${sample_info_map.sample_label}_qc_stat.xls
   """
 }
 
 process kraken2 {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/03_Decontamination/",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/03_Decontamination/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}" 
+  tag "${sample_info_map.sample_label}.Try${task.attempt}" 
 
   input:
     val sample_info_map
 
   output:
-    tuple val(sample_info_map), path("${sample_info_map.sample_name}.kraken.report"),   emit:sample_info_tuple
+    tuple val(sample_info_map), path("${sample_info_map.sample_label}.kraken.report"),   emit:sample_info_tuple
     path("*")
 
   script:  
@@ -234,26 +244,26 @@ process kraken2 {
     -db ${params.database.kraken2_db} \
     --threads 16 \
     --confidence 0.1 \
-    --classified-out  ${sample_info_map.sample_name}_classified.fastq  \
-    --unclassified-out  ${sample_info_map.sample_name}_unclassified.fastq \
-    --output ${sample_info_map.sample_name}.kraken.out  \
-	  --report ${sample_info_map.sample_name}.kraken.report \
+    --classified-out  ${sample_info_map.sample_label}_classified.fastq  \
+    --unclassified-out  ${sample_info_map.sample_label}_unclassified.fastq \
+    --output ${sample_info_map.sample_label}.kraken.out  \
+	  --report ${sample_info_map.sample_label}.kraken.report \
     ${sample_info_map.clean_filt_data}
 	  
   """
 }
 
 process bracken {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/03_Decontamination/",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/03_Decontamination/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
     val sample_info_map
 
   output:
-    tuple val(sample_info_map), path("${sample_info_map.sample_name}.bracken.out"),   emit:sample_info_tuple
+    tuple val(sample_info_map), path("${sample_info_map.sample_label}.bracken.out"),   emit:sample_info_tuple
     path("*")
   
   script:
@@ -261,8 +271,8 @@ process bracken {
   ${params.software.bracken} \
     -d ${params.database.kraken2_db} \
     -i ${sample_info_map.kraken_report} \
-    -o ${sample_info_map.sample_name}.bracken.out \
-    -w ${sample_info_map.sample_name}.bracken.new.report \
+    -o ${sample_info_map.sample_label}.bracken.out \
+    -w ${sample_info_map.sample_label}.bracken.new.report \
     -r 300 \
     -l S \
     -t 16
@@ -270,10 +280,10 @@ process bracken {
 }
 
 process top_10 {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/03_Decontamination/",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/03_Decontamination/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
     val sample_info_map
@@ -294,10 +304,10 @@ process top_10 {
 }
 
 process flye {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/04_Assembly/",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/04_Assembly/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
     val sample_info_map
@@ -357,50 +367,50 @@ process flye {
       --min-overlap 1000
       
   # if [[ \$? -eq 0 ]]; then
-  # mv flye_out/assembly.fasta     ./${sample_info_map.sample_name}.draft_assembly.fasta
-  # mv flye_out/assembly_info.txt  ./${sample_info_map.sample_name}_flye_stats.tsv
-  # ${params.software.bgzip}  ${sample_info_map.sample_name}.draft_assembly.fasta
+  # mv flye_out/assembly.fasta     ./${sample_info_map.sample_label}.draft_assembly.fasta
+  # mv flye_out/assembly_info.txt  ./${sample_info_map.sample_label}_flye_stats.tsv
+  # ${params.software.bgzip}  ${sample_info_map.sample_label}.draft_assembly.fasta
   """
 }
 
 process reorder_and_summarize {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/04_Assembly/",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/04_Assembly/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
         tuple val(sample_info_map), path(flye_fa), path(flye_out_stat)
   output:
-        tuple val(sample_info_map), path("${sample_info_map.sample_name}_sorted_assembly.fa"), path("${sample_info_map.sample_name}_updated_flye_stat.tsv"), path("${sample_info_map.sample_name}_assembly_summary.txt"), emit:sample_info_tuple
+        tuple val(sample_info_map), path("${sample_info_map.sample_label}_sorted_assembly.fa"), path("${sample_info_map.sample_label}_updated_flye_stat.tsv"), path("${sample_info_map.sample_label}_assembly_summary.txt"), emit:sample_info_tuple
   
   beforeScript 'source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate'
 
   script:
   """
-  reorder_and_summarize_contigs.py   --fasta_file  ${flye_fa}  --stats_file  ${flye_out_stat}  --chunk_size ${params.chunk_size} --prefix ${sample_info_map.sample_name}
+  reorder_and_summarize_contigs.py   --fasta_file  ${flye_fa}  --stats_file  ${flye_out_stat}  --chunk_size ${params.chunk_size} --prefix ${sample_info_map.sample_label}
   """
     
 }
 
 process alignReads {
     // label "wfbacterialgenomes"
-    publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/04_Assembly/",  mode: "rellink", overwrite: true
+    publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/04_Assembly/",  mode: "rellink", overwrite: true
     memory "8 GB"
     errorStrategy  { return 'retry'}
     maxRetries 2
-    tag "${sample_info_map.sample_name}.Try${task.attempt}"
+    tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
 
     input:
         val(sample_info_map)
     output:
-        tuple val(sample_info_map), path("${sample_info_map.sample_name}.reads2ref.bam"), path("${sample_info_map.sample_name}.reads2ref.bam.bai"), emit:sample_info_tuple
+        tuple val(sample_info_map), path("${sample_info_map.sample_label}.reads2ref.bam"), path("${sample_info_map.sample_label}.reads2ref.bam.bai"), emit:sample_info_tuple
     
     
     """
     source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate  /nas02/project/zhaolei/software/conda/conda_env/medaka
-    mini_align -i ${sample_info_map.clean_filt_data}  -r ${sample_info_map.flye_fa}   -p "${sample_info_map.sample_name}.reads2ref" -t 16 -m
+    mini_align -i ${sample_info_map.clean_filt_data}  -r ${sample_info_map.flye_fa}   -p "${sample_info_map.sample_label}.reads2ref" -t 16 -m
     """
 }
 
@@ -410,13 +420,13 @@ process splitRegions {
     memory "4 GB"
     errorStrategy  { return 'retry'}
     maxRetries 2
-    tag "${sample_info_map.sample_name}.Try${task.attempt}"
+    tag "${sample_info_map.sample_label}.Try${task.attempt}"
     
     input:
         val(sample_info_map)
     
     output:
-        tuple val(sample_info_map), path("output.txt"),  emit:sample_info
+        tuple val(sample_info_map), path("output.txt"),  emit:sample_info_tuple
          
     
     beforeScript "source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate  /nas02/project/zhaolei/software/conda/conda_env/medaka"
@@ -446,7 +456,7 @@ process medakaHdf {
 
     errorStrategy { task.exitStatus == 137 ? "retry" : "terminate" }
     maxRetries 2
-    tag "${sample_info_map.sample_name}.Try${task.attempt}"
+    tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
     input:
         tuple val(sample_info_map), val(region)            
@@ -463,7 +473,7 @@ process medakaHdf {
     source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate  /nas02/project/zhaolei/software/conda/conda_env/medaka    
     medaka --version
     
-    medaka inference  ${sample_info_map.reads2ref_bam}   ${sample_info_map.sample_name}.consensus_probs.hdf  \
+    medaka inference  ${sample_info_map.reads2ref_bam}   ${sample_info_map.sample_label}.consensus_probs.hdf  \
         --threads 4 --regions ${region} --model dna_r10.4.1_e8.2_400bps_sup@v4.3.0:${type}
     """
 
@@ -471,24 +481,24 @@ process medakaHdf {
 
 
 process medakaConsensus {
-    publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/04_Assembly/",  mode: "rellink", overwrite: true
+    publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/04_Assembly/",  mode: "rellink", overwrite: true
     label "medaka"
     errorStrategy { task.exitStatus == 137 ? "retry" : "terminate" }
     maxRetries 2
-    tag "${sample_info_map.sample_name}.Try${task.attempt}"
+    tag "${sample_info_map.sample_label}.Try${task.attempt}"
     
     input:
         tuple val(sample_info_map),path("consensus_probs*.hdf")
             
     output:
-        tuple val(sample_info_map), path("${sample_info_map.sample_name}.medaka.order.fasta"),  emit: sample_info_tuple
+        tuple val(sample_info_map), path("${sample_info_map.sample_label}.medaka.order.fasta"),  emit: sample_info_tuple
     
     shell:
     """
     source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate  /nas02/project/zhaolei/software/conda/conda_env/medaka
-    medaka sequence --threads 4  consensus_probs*.hdf   ${sample_info_map.flye_fa}    ${sample_info_map.sample_name}.medaka.fasta
-    add_model_to_fasta.sh dna_r10.4.1_e8.2_400bps_sup@v4.3.0  "${sample_info_map.sample_name}.medaka.fasta"
-    /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/python /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/bin/fa_order.py --fasta_file ${sample_info_map.sample_name}.medaka.fasta --output_fasta ${sample_info_map.sample_name}.medaka.order.fasta
+    medaka sequence --threads 4  consensus_probs*.hdf   ${sample_info_map.flye_fa}    ${sample_info_map.sample_label}.medaka.fasta
+    add_model_to_fasta.sh dna_r10.4.1_e8.2_400bps_sup@v4.3.0  "${sample_info_map.sample_label}.medaka.fasta"
+    /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/python /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/bin/fa_order.py --fasta_file ${sample_info_map.sample_label}.medaka.fasta --output_fasta ${sample_info_map.sample_label}.medaka.order.fasta
     """
 }
 
@@ -522,16 +532,16 @@ process medakaVariant {
 
 
 process re_align_bac {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/04_Assembly/Realign",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/04_Assembly/Realign",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 0
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
       tuple val(sample_info_map),path(medaka_consence)
 
   output:
-      tuple val(sample_info_map),path(medaka_consence), path("${sample_info_map.sample_name}_calls_to_consence.bam"), path("${sample_info_map.sample_name}_genome_stat.tsv"), path("${sample_info_map.sample_name}_contig_stat.xls"), path("output_figures/${sample_info_map.sample_name}-contig_1.coverage.png"),  emit:sample_info_tuple
+      tuple val(sample_info_map),path(medaka_consence), path("${sample_info_map.sample_label}_calls_to_consence.bam"), path("${sample_info_map.sample_label}_genome_stat.tsv"), path("${sample_info_map.sample_label}_contig_stat.xls"), path("output_figures/${sample_info_map.sample_label}-contig_1.coverage.png"),  emit:sample_info_tuple
         
       path("*")
 
@@ -544,39 +554,39 @@ process re_align_bac {
   export PATH=${JAVA_HOME}/bin:$PATH
   # 反比得到bam
   source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate  /nas02/project/zhaolei/software/conda/conda_env/medaka
-  mini_align -i ${sample_info_map.clean_filt_data}  -r ${medaka_consence}   -p  ${sample_info_map.sample_name}_calls_to_consence  -t 16 -m
+  mini_align -i ${sample_info_map.clean_filt_data}  -r ${medaka_consence}   -p  ${sample_info_map.sample_label}_calls_to_consence  -t 16 -m
   
 
   source  /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate base
   # 统计基因组信息
   ${params.software.assembly_stats} -t ${medaka_consence} > assembly_stats.tsv
-  get_report_assembly_stat.py assembly_stats.tsv  ${sample_info_map.sample_name}_genome_stat.tsv
+  get_report_assembly_stat.py assembly_stats.tsv  ${sample_info_map.sample_label}_genome_stat.tsv
 
   #gc
   ${params.software.seqtk} comp ${medaka_consence}  | cut -f1,2,3,4,5,6  > assembly_gc.list
   #cov and dep, for contig 整体的
-  ${params.software.samtools}  coverage  ${sample_info_map.sample_name}_calls_to_consence.bam  -o ${sample_info_map.sample_name}_cov_dep.stat
+  ${params.software.samtools}  coverage  ${sample_info_map.sample_label}_calls_to_consence.bam  -o ${sample_info_map.sample_label}_cov_dep.stat
   # contig info summary
-  get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_name}_cov_dep.stat -o ${sample_info_map.sample_name}_contig_stat.xls
+  get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -o ${sample_info_map.sample_label}_contig_stat.xls
 
   ${params.software.faidx}  ${medaka_consence} -i   chromsizes > genome.size
   ${params.software.bedtools} makewindows -g genome.size  -w ${params.dep_png_bin_size}  > dep_bin.bed
-  ${params.software.bedtools} coverage  -a dep_bin.bed  -b ${sample_info_map.sample_name}_calls_to_consence.bam -mean  > bed_mean_cov.txt
-  plot_depth.py bed_mean_cov.txt output_figures ${sample_info_map.sample_name}
+  ${params.software.bedtools} coverage  -a dep_bin.bed  -b ${sample_info_map.sample_label}_calls_to_consence.bam -mean  > bed_mean_cov.txt
+  plot_depth.py bed_mean_cov.txt output_figures ${sample_info_map.sample_label}
   """
 }
 
 process re_align {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/04_Assembly/Realign",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/04_Assembly/Realign",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 0
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
       tuple val(sample_info_map),path(medaka_consence)
 
   output:
-      tuple val(sample_info_map),path(medaka_consence), path("${sample_info_map.sample_name}_calls_to_consence.bam"),   emit:sample_info_tuple
+      tuple val(sample_info_map),path(medaka_consence), path("${sample_info_map.sample_label}_calls_to_consence.bam"),   emit:sample_info_tuple
       path("*")
   //  beforeScript = "source /nas02/software/conda/Miniconda3/miniconda3/bin/activate" 
 
@@ -584,21 +594,21 @@ process re_align {
   """
   # 反比得到bam
   source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate  /nas02/project/zhaolei/software/conda/conda_env/medaka
-  mini_align -i ${sample_info_map.clean_filt_data}  -r ${medaka_consence}   -p  ${sample_info_map.sample_name}_calls_to_consence  -t 16 -m
+  mini_align -i ${sample_info_map.clean_filt_data}  -r ${medaka_consence}   -p  ${sample_info_map.sample_label}_calls_to_consence  -t 16 -m
   """
 }
 
 process assembly_stat {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/04_Assembly/Realign/",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/04_Assembly/Realign/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 0
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
     tuple val(sample_info_map),path(medaka_consence),path(consence_bam)
 
   output:
-    tuple val(sample_info_map),path("${sample_info_map.sample_name}_assembly.fna"), path(consence_bam), path("${sample_info_map.sample_name}_genome_stat.tsv"), path("${sample_info_map.sample_name}_contig_stat.xls"), path("output_figures/${sample_info_map.sample_name}-${sample_info_map.longest_contig}.coverage.png"),path("${sample_info_map.sample_name}_replicon.tsv"), emit:sample_info_tuple
+    tuple val(sample_info_map),path("${sample_info_map.sample_label}_assembly.fna"), path(consence_bam), path("${sample_info_map.sample_label}_genome_stat.tsv"), path("${sample_info_map.sample_label}_contig_stat.xls"), path("output_figures/${sample_info_map.sample_label}-${sample_info_map.longest_contig}.coverage.png"),path("${sample_info_map.sample_label}_replicon.tsv"), emit:sample_info_tuple
     path("*")
 
 
@@ -610,37 +620,37 @@ process assembly_stat {
   ${params.software.seqtk} comp ${medaka_consence}  | cut -f1,2,3,4,5,6  > assembly_gc.list
   
   #cov and dep, for contig 整体的
-  ${params.software.samtools}  coverage  ${consence_bam}  -o ${sample_info_map.sample_name}_cov_dep.stat
+  ${params.software.samtools}  coverage  ${consence_bam}  -o ${sample_info_map.sample_label}_cov_dep.stat
   
   # contig info summary
-  get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_name}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_name}_contig_stat1.xls
-  contig_filter_and_sort.py --contig_stat  ${sample_info_map.sample_name}_contig_stat1.xls  --in_fna  ${medaka_consence} --out_fna ${sample_info_map.sample_name}_assembly.fna  --out_stat  ${sample_info_map.sample_name}_contig_stat.xls
-  get_bakta_replicon.py -i ${sample_info_map.sample_name}_contig_stat.xls -o ${sample_info_map.sample_name}_replicon.tsv
+  get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_label}_contig_stat1.xls
+  contig_filter_and_sort.py --contig_stat  ${sample_info_map.sample_label}_contig_stat1.xls  --in_fna  ${medaka_consence} --out_fna ${sample_info_map.sample_label}_assembly.fna  --out_stat  ${sample_info_map.sample_label}_contig_stat.xls
+  get_bakta_replicon.py -i ${sample_info_map.sample_label}_contig_stat.xls -o ${sample_info_map.sample_label}_replicon.tsv
 
 
   # 统计基因组信息
-  ${params.software.assembly_stats} -t ${sample_info_map.sample_name}_assembly.fna > assembly_stats.tsv
-  get_report_assembly_stat.py assembly_stats.tsv  ${sample_info_map.sample_name}_genome_stat.tsv
+  ${params.software.assembly_stats} -t ${sample_info_map.sample_label}_assembly.fna > assembly_stats.tsv
+  get_report_assembly_stat.py assembly_stats.tsv  ${sample_info_map.sample_label}_genome_stat.tsv
 
 
-  ${params.software.faidx}  ${sample_info_map.sample_name}_assembly.fna  -i   chromsizes > genome.size
+  ${params.software.faidx}  ${sample_info_map.sample_label}_assembly.fna  -i   chromsizes > genome.size
   ${params.software.bedtools} makewindows -g genome.size  -w ${params.dep_png_bin_size}  > dep_bin.bed
   ${params.software.bedtools} coverage  -a dep_bin.bed  -b ${consence_bam} -mean  > bed_mean_cov.txt
-  plot_depth.py bed_mean_cov.txt output_figures ${sample_info_map.sample_name}
+  plot_depth.py bed_mean_cov.txt output_figures ${sample_info_map.sample_label}
   """
 }
 
 process contig_stat {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/04_Assembly/Realign/",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/04_Assembly/Realign/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 0
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
     tuple val(sample_info_map),path(medaka_consence),path(consence_bam)
 
   output:
-    tuple val(sample_info_map), path("${sample_info_map.sample_name}_contig_stat.xls")
+    tuple val(sample_info_map), path("${sample_info_map.sample_label}_contig_stat.xls")
     
   
   script:
@@ -648,24 +658,24 @@ process contig_stat {
   #gc
   ${params.software.seqtk} comp ${medaka_consence}  | cut -f1,2,3,4,5,6  > assembly_gc.list
   #cov and dep, for contig 整体的
-  ${params.software.samtools}  coverage  ${consence_bam}  -o ${sample_info_map.sample_name}_cov_dep.stat
+  ${params.software.samtools}  coverage  ${consence_bam}  -o ${sample_info_map.sample_label}_cov_dep.stat
   # contig info summary
-  get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_name}_cov_dep.stat -o ${sample_info_map.sample_name}_contig_stat.xls
+  get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -o ${sample_info_map.sample_label}_contig_stat.xls
   """
 
 }
 
 process depth_stat_png {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/04_Assembly/Realign/",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/04_Assembly/Realign/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 0
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
     tuple val(sample_info_map), path(medaka_consence),path(consence_bam)
 
   output:
-    tuple val(sample_info_map), path("output_figures/${sample_info_map.sample_name}-contig_1.coverage.png")
+    tuple val(sample_info_map), path("output_figures/${sample_info_map.sample_label}-contig_1.coverage.png")
     path("output_figures")
     
     
@@ -675,22 +685,22 @@ process depth_stat_png {
   ${params.software.faidx}  ${medaka_consence} -i   chromsizes > genome.size
   ${params.software.bedtools} makewindows -g genome.size  -w ${params.dep_png_bin_size}  > dep_bin.bed
   ${params.software.bedtools} coverage  -a dep_bin.bed  -b ${consence_bam} -mean  > bed_mean_cov.txt
-  plot_depth.py bed_mean_cov.txt output_figures ${sample_info_map.sample_name}
+  plot_depth.py bed_mean_cov.txt output_figures ${sample_info_map.sample_label}
   """
 
 }
 
 process bakata {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/05_Genome_Annotion/",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/05_Genome_Annotion/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
       val(sample_info_map)
 
   output:
-      tuple val(sample_info_map), path("${sample_info_map.sample_name}.png"), path("${sample_info_map.sample_name}.tsv"), emit: sample_info_tuple
+      tuple val(sample_info_map), path("${sample_info_map.sample_label}.png"), path("${sample_info_map.sample_label}.faa"), path("${sample_info_map.sample_label}.gff3"),path("${sample_info_map.sample_label}.tsv"), emit: sample_info_tuple
       path("*")
 
 
@@ -704,7 +714,7 @@ process bakata {
   /nas02/project/zhaolei/software/conda/conda_env/bakta/bin/bakta \
     -d ${params.database.bakata_db} \
     -f \
-    -p ${sample_info_map.sample_name} \
+    -p ${sample_info_map.sample_label} \
     -o ./ \
     --species ${species_name} \
     --replicons ${sample_info_map.replicon} \
@@ -715,16 +725,16 @@ process bakata {
 }
 
 process get_report {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/06_Report/",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/06_Report/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
     val sample_info_map
 
   output:
-    tuple val(sample_info_map), path("${sample_info_map.sample_name}_report.html"),   emit:sample_info_tuple
+    tuple val(sample_info_map), path("${sample_info_map.sample_label}_report.html"),   emit:sample_info_tuple
     
   beforeScript 'source  /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate'
   
@@ -744,16 +754,16 @@ process get_report {
   ln -fs ${sample_info_map.depth_png}  images/depth_coverage.png
 
   get_summary.py  -p ${sample_info_map.project_id} -sp "${species_name}"  -s  tables/qc_stat.xls   -a tables/assemble_stat_table.tsv -cds ${sample_info_map.cds_tsv}   -o tables/pj_summary.xls
-  generate_report.py  -p ${sample_info_map.sample_name}_
+  generate_report.py  -p ${sample_info_map.sample_label}
   """
 
 }
 
 process get_release {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_id}/",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
-  tag "${sample_info_map.sample_name}.Try${task.attempt}"
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
     val(sample_info_map)
@@ -771,31 +781,31 @@ mkdir -p Release/Decontamination
 mkdir -p Release/Assembly
 mkdir -p Release/Genome_Annotion
 mkdir -p Release/Report
-ln -fs  \${dir}/01_rawdata/${sample_info_map.sample_name}.cut_raw.fastq.gz               Release/Rawdata/${sample_info_map.sample_name}.raw.fastq.gz
+ln -fs  \${dir}/01_rawdata/${sample_info_map.sample_label}.cut_raw.fastq.gz               Release/Rawdata/${sample_info_map.sample_label}.raw.fastq.gz
 # ln -fs  ${sample_info_map.raw_qc}                 Release/Rawdata/
 # ln -fs  ${sample_info_map.clean_filt_data}        Release/Cleandata
 # ln -fs  ${sample_info_map.clean_qc}               Release/Cleandata
 # ln -fs  ${sample_info_map.qc_stat}                Release/Cleandata
 ln -fs  \${dir}/03_Decontamination/top10.tsv        Release/Decontamination
-# ln -fs    \${dir}/04_Assembly/${sample_info_map.sample_name}_updated_flye_stat.tsv             Release/Assembly/
-ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_name}_assembly.fna        Release/Assembly/
-ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_name}_genome_stat.tsv           Release/Assembly/
-ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_name}_contig_stat.xls           Release/Assembly/
+# ln -fs    \${dir}/04_Assembly/${sample_info_map.sample_label}_updated_flye_stat.tsv             Release/Assembly/
+ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_label}_assembly.fna        Release/Assembly/
+ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_label}_genome_stat.tsv           Release/Assembly/
+ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_label}_contig_stat.xls           Release/Assembly/
 ln -fs    \${dir}/04_Assembly/Realign/output_figures                           Release/Assembly/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_name}.tsv                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_name}.gff3                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_name}.gbff                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_name}.embl                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_name}.fna                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_name}.ffn                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_name}.faa                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_name}.inference.tsv                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_name}.hypotheticals.tsv                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_name}.hypotheticals.faa                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_name}.txt                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_name}.png                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_name}.svg                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_name}.json                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.tsv                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.gff3                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.gbff                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.embl                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.fna                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.ffn                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.faa                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.inference.tsv                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.hypotheticals.tsv                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.hypotheticals.faa                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.txt                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.png                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.svg                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.json                          Release/Genome_Annotion/
 ln -fs    ${sample_info_map.report_html}            Release/Report
 ln -fs    ${projectDir}/bin/release_readme.txt      Release/Readme.txt
 

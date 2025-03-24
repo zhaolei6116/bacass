@@ -1,5 +1,7 @@
 nextflow.enable.dsl=2
 
+include { getBarcode } from "../lib/kit.nf"
+
 /*
  * ingress.nf
  *
@@ -57,45 +59,23 @@ workflow ingress_flow {
             .fromPath(params.csv)
             .splitCsv(header: true, sep: '\t')
             .map { row ->
-                // // 构建预期的fastq_pass目录路径
-                // def fastqPassDir = new File("${row.Path}/no_sample/*/fastq_pass/${row.Barcode}")
-
-                // if(new File(fastqPassDir).exists()) {
-                //     def fastqPath = "${fastqPassDir}"
-                // }else {
-                //     throw new RuntimeException("No directory found for barcode ${row.Barcode} under path ${row.Path}.")
-                // }
-            
-
-                // // 查找匹配的目录
-                // def fastqPassDirs = fastqPassDir.listFiles().findAll { it.isDirectory() }
-                // println("${fastqPassDirs}")
-
-                // // 检查是否有多个匹配的目录
-                // if(fastqPassDirs.size() > 1) {
-                //     throw new RuntimeException("Multiple directories found for barcode ${row.Barcode} under path ${row.Path}. Please check the directory structure.")
-                // }
-
-                // // 检查是否有匹配的目录
-                // if(fastqPassDirs.isEmpty()) {
-                //     throw new RuntimeException("No directory found for barcode ${row.Barcode} under path ${row.Path}.")
-                // }
-
-                // // 使用第一个匹配的目录作为fastq_path
-                // def fastqPath = fastqPassDirs[0]    
-
-                // 转换 CSV 行数据为 Map
+                 def barcode_version = row.Barcode_type
+                 def barcode_id = row.Barcode
+                 def barcode_seq = getBarcode(barcode_version, barcode_id)
+                
                 [
                     project_id   : row.Client,
+                    sample_id    : row.Detect_no,
                     sample_name  : row.Sample_name,
-                    fastq_path   : row.Path,
+                    sample_label : "${row.Detect_no}_${row.Sample_name}",
+                    barcode_type : row.Barcode_type,
                     barcode      : row.Barcode,
+                    barcode_seq  : "${barcode_seq}",
+                    fastq_path   : row.Path,
                     species_name : row.Species_name,
                     genome_size  : row.Genome_size,
                     data_volume  : row.Data_volume,
-                    barcode_type : row.Barcode_type,
-                    sample_id    : row.Detect_no,
-                    report_path  : row.Report_path,
+                    report_path  : row.Report_path,                    
                 ]
             }
     }

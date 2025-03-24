@@ -165,7 +165,7 @@ workflow denovo {
     //                   .map { samples_info ->
     //                   return tuple(samples_info.sample_id, samples_info)
     // }
-    sample_info_and_regin_ch = splitRegions.out.sample_info
+    sample_info_and_regin_ch = splitRegions.out.sample_info_tuple
                               .map { samples_info, regin_txt ->
                                       def lines = regin_txt.text.readLines()
                                       return tuple(samples_info, lines)
@@ -201,8 +201,8 @@ workflow denovo {
     
     bakata(assembly_stat_out_ch)
     bakata_out_ch = bakata.out.sample_info_tuple
-                      .map { samples_info, circle_png, cds_tsv->
-                      samples_info + ["circos_png":circle_png, "cds_tsv":cds_tsv]
+                      .map { samples_info, circle_png, cds_faa, cds_gff3, cds_tsv->
+                      samples_info + ["circos_png":circle_png, "cds_faa":cds_faa, "cds_gff3": cds_gff3, "cds_tsv": cds_tsv]
                       }
     
   emit:
