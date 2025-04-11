@@ -161,7 +161,7 @@ process filtlong {
     """
     ${params.software.filtlong} \
       --min_length 1000 \
-      --keep_percent 95 \
+      --keep_percent 60 \
       ${cut_clean_data} |  gzip > ${sample_info_map.sample_label}.clean.filt.fastq.gz
     """
 
@@ -180,12 +180,11 @@ process nanoplot {
   tuple val(sample_info_map), path("${sample_info_map.sample_label}_clean_stat.tsv"), path("nanoplot/${sample_info_map.sample_label}_LengthvsQualityScatterPlot_dot.png"), emit: sample_info_tuple
   path("nanoplot") 
   
-
-  beforeScript 'source /data/software/miniconda/bin/activate'
   
   script:
     
   """
+  source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate /nas02/project/zhaolei/software/conda/nanoplot
   ${params.software.nanoplot} \
   -t 10 \
 	--fastq ${sample_info_map.clean_filt_data} \
@@ -625,6 +624,8 @@ process assembly_stat {
   # contig info summary
   get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_label}_contig_stat1.xls
   contig_filter_and_sort.py --contig_stat  ${sample_info_map.sample_label}_contig_stat1.xls  --in_fna  ${medaka_consence} --out_fna ${sample_info_map.sample_label}_assembly.fna  --out_stat  ${sample_info_map.sample_label}_contig_stat.xls
+  # ln -s ${medaka_consence}  ${sample_info_map.sample_label}_assembly.fna 
+  # ln -s ${sample_info_map.sample_label}_contig_stat1.xls  ${sample_info_map.sample_label}_contig_stat.xls
   get_bakta_replicon.py -i ${sample_info_map.sample_label}_contig_stat.xls -o ${sample_info_map.sample_label}_replicon.tsv
 
 
@@ -811,7 +812,7 @@ ln -fs    ${projectDir}/bin/release_readme.txt      Release/Readme.txt
 
 ${params.software.zip}  -r  ${sample_info_map.sample_id}.zip   Release/
 /usr/bin/ossutil64  cp ${sample_info_map.sample_id}.zip   oss://cwbiobj${sample_info_map.report_path}  -c ${params.database.ossconfig_bj}
-echo -e "${sample_info_map.sample_id}\tseqconfirm\t${sample_info_map.report_path}\t-\t-" > ${sample_info_map.sample_id}.judge.txt
+echo -e "${sample_info_map.sample_id}\\tseqconfirm\\t${sample_info_map.report_path}\\t-\\t-" > ${sample_info_map.sample_id}.judge.txt
 /nas02/software/jdk-22.0.1/bin/java -jar /nas02/project/fengdong/04.pipe/pipe.xml/Bin/FTGSpipeV3/10.Judge/CwbioPutDataLims.jar --config /nas02/project/fengdong/04.pipe/pipe.xml/Bin/FTGSpipeV3/10.Judge/config/config.properties.BJ  --path ${sample_info_map.sample_id}.judge.txt
 
 EOF

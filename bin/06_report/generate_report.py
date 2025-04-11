@@ -61,7 +61,7 @@ class ReportGenerator:
         try:
             df = pd.read_csv(table_path, sep='\t',  header=None)
             temp_html = df.to_html(header=False, index=False, classes='table table-bordered table-striped table-hover')            
-            temp_html = re.sub(r'<td>物种名称</td>\n\s*<td>', r'<td>物种名称</td>\n      <td style="font-style: italic;">', temp_html)
+            temp_html = re.sub(r'<td>预期物种</td>\n\s*<td>', r'<td>预期物种</td>\n      <td style="font-style: italic;">', temp_html)
             return temp_html
         except Exception as e:
             print(f"Error reading table {table_path}: {e}")
@@ -93,8 +93,8 @@ def setup_args():
             formatter_class=argparse.RawTextHelpFormatter,
             epilog = f"Version: {__version__}\nDate: {__date__}\nAuthor: {__author__}")
     parser.add_argument('-v','--version', action='version', version=f'%(prog)s {__version__}')
-    parser.add_argument('-c', '--config', type=str, help='The path to config',  default=script_dir+"/config.ini") 
-    parser.add_argument('-t', '--template', type=str, help='The path to template report', default=script_dir+"/demo_template.html")
+    parser.add_argument('-c', '--config', type=str, help='The path to config',  default=os.path.join(script_dir, "config.ini")) 
+    parser.add_argument('-t', '--template', type=str, help='The path to template report', default=os.path.join(script_dir, "demo_template.html"))
     parser.add_argument('-p', '--prefix', type=str, help='output file prefix, 一般为项目号', default="sample")
     args = parser.parse_args()
 

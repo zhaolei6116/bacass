@@ -8,4 +8,9 @@ SCRIPT_DIR=$(dirname "$RUN_SCRIPT_PATH")
 
 # 激活 Conda 环境并运行 get_info.py
 source  /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate
-python $SCRIPT_DIR/get_and_management_info.py    -c  $SCRIPT_DIR/config.json
+
+# 定义所有区域
+# REGIONS=("WH" "SH" "BJ" "GZ" "TZ")
+
+python $SCRIPT_DIR/get_and_management_info.py  
+

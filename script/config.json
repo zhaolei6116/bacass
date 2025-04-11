@@ -1,9 +1,15 @@
 {
   "log_dir": "logs",
   "backup_dir": "backup",
-  "java_jar": "/bioinformation/Project/FTGS_bj/script/CwbioRequestDataLims.V2.jar",
-  "java_config": "/bioinformation/Project/FTGS_bj/script/config/config.properties.BJ",
+  "java_jar": "resources/CwbioRequestDataLims.V2.jar",
+  "java_configs": {
+    "WH": "resources/config/config.properties.WH",
+    "SH": "resources/config/config.properties.SH",
+    "BJ": "resources/config/config.properties.BJ",
+    "GZ": "resources/config/config.properties.GZ",
+    "TZ": "resources/config/config.properties.TZ"
+  },
   "java": "/data/software/miniconda/bin/java",
-  "START_OFFSET": 10,
+  "START_OFFSET": 24,
   "CHECK_INTERVAL":3600
 }

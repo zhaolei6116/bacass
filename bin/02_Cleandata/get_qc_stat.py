@@ -39,7 +39,7 @@ class MetricsReader:
         self.longest_read_with_Q1 = self.convert_num(self.longest_read_with_Q1)
         self.mean_read_length = f'{self.mean_read_length:,}'
         self.median_read_length = f'{self.median_read_length:,}'
-        self.ReadsQ5 = self.convert_num_2(self.ReadsQ5)
+        # self.ReadsQ5 = self.convert_num_2(self.ReadsQ5)
         self.ReadsQ10 = self.convert_num_2(self.ReadsQ10)
         self.ReadsQ15 = self.convert_num_2(self.ReadsQ15)
 

@@ -8,7 +8,7 @@ import subprocess
 
 
 
-def load_config(config_file="config.json"):
+def load_config(config_file):
     """
     加载配置文件
     :param config_file: 配置文件路径
@@ -20,7 +20,22 @@ def load_config(config_file="config.json"):
     
     with open(config_file, "r") as f:
         config = json.load(f)
-        return config
+
+    # 获取配置文件所在目录    
+    config_dir = os.path.dirname(os.path.abspath(config_file))
+
+    # 将相对路径转换为绝对路径
+    for key in ["backup_dir", "java_jar"]:
+        if key in config and not os.path.isabs(config[key]):
+            config[key] = os.path.join(config_dir, config[key])
+    
+    # 转换 java_configs 中的所有路径为绝对路径
+    if "java_configs" in config:
+        for region, path in config["java_configs"].items():
+            if not os.path.isabs(path):
+                config["java_configs"][region] = os.path.join(config_dir, path)
+
+    return config
 
 
 def setup_logging(log_dir="logs"):
@@ -60,44 +75,42 @@ def check_sample_info_db(sample_info_path="sample_info_db.tsv"):
         logging.info(f"{sample_info_path} 文件不存在，将在首次加载数据时创建")
         return False
 
-def fetch_sample_data(java, start_time, end_time, java_jar, java_config):
+
+def fetch_sample_data(java, start_time, end_time, java_jar, java_config, region):
     """
-    调用Java接口获取样本信息
+    调用 Java 接口获取样本信息
+    :param java: Java 可执行文件路径
     :param start_time: 起始时间，格式 "YYYY-MM-DD HH:MM:SS"
     :param end_time: 结束时间，格式 "YYYY-MM-DD HH:MM:SS"
-    :param java_jar: Java程序路径
-    :param java_config: Java配置文件路径
+    :param java_jar: Java 程序路径
+    :param java_config: Java 配置文件路径
+    :param region: 当前处理的区域
     """
-    logging.info(f"调用java接口获取样本信息")
+    logging.info(f"调用 Java 接口获取样本信息 (区域: {region}, 配置文件: {java_config})")
     cmd = (
         f'{java} -jar {java_jar} '
         f'--startTime="{start_time}" --endTime="{end_time}" '
         f'--config="{java_config}"'
     )
-    print(cmd)
+    print("Executing command:", cmd)
     try:
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
         if result.returncode == 0:
             if "\"data\":" in result.stdout:
                 logging.info("样本信息获取成功")
-                logging.info(f"Java接口返回信息:\n{result.stdout}\n{result.stderr}")
+                logging.info(f"Java 接口返回信息:\n{result.stdout}\n{result.stderr}")
                 if "\"data\":[]" in result.stdout:
-                    logging.warning("返回结果为空，无满足条件的数据。")
-                    exit(0)
+                    logging.warning(f"区域 {region} 返回结果为空，无满足条件的数据。\n\n"+"*"*50)
                 else:
-                    logging.info("返回结果包含有效数据。")
-                    
+                    logging.info(f"区域 {region} 返回结果包含有效数据。\n\n"+"*"*50)
             else:
-                logging.error("样本信息获取失败")
-                logging.error(f"Java接口错误信息:\n{result.stdout}\n{result.stderr}")
-                exit(1)
+                logging.error(f"区域 {region} 样本信息获取失败")
+                logging.error(f"Java 接口错误信息:\n{result.stdout}\n{result.stderr}")
         else:
-            logging.error("样本信息获取失败")
-            logging.error(f"Java接口错误信息:\n{result.stdout}\n{result.stderr}")
-            exit(1)
+            logging.error(f"区域 {region} 样本信息获取失败")
+            logging.error(f"Java 接口错误信息:\n{result.stdout}\n{result.stderr}")
     except Exception as e:
-        logging.critical(f"调用Java接口时发生错误: {e}")
-        exit(1)
+        logging.critical(f"调用 Java 接口时发生错误 (区域: {region}): {e}")
 
 def setup_args():
     """
@@ -106,55 +119,98 @@ def setup_args():
     -c 或 --config: 配置文件路径，默认为 "config.json"。
     -s 或 --sample_info: 样本信息文件路径，默认为 "sample_info_db.tsv"。
     """
+    script_absolute_path = os.path.abspath(__file__)
+    script_dir = os.path.dirname(script_absolute_path)
+
     parser = argparse.ArgumentParser(description="样本信息处理脚本")
 
     # 配置文件路径参数
+    
     parser.add_argument(
         "-c", "--config",
         type=str,
-        default="config.json",
-        help="配置文件路径，默认为 'config.json'"
+        required=False,
+        default=os.path.join(script_dir, "config.json"),
+        help=f"配置文件路径，默认为 {os.path.join(script_dir, "config.json")}"
     )
 
+    # 添加区域参数
+    # parser.add_argument(
+    #     "-r", "--region",
+    #     required=True,
+    #     choices=["WH", "SH", "BJ", "GZ", "TZ"],
+    #     help="Region to use"
+    # )
+
     # 样本信息文件路径参数
-    parser.add_argument(
-        "-s", "--sample_info",
-        type=str,
-        default="sample_info_db.tsv",
-        help="样本信息文件路径，默认为 'sample_info_db.tsv'"
-    )
+    # parser.add_argument(
+    #     "-s", "--sample_info",
+    #     type=str,
+    #     default="sample_info_db.tsv",
+    #     help="样本信息文件路径，默认为 'sample_info_db.tsv'"
+    # )
 
     return parser.parse_args()
 
-
-
-if __name__ == "__main__":
+def main():
     # 获取命令行参数
     args = setup_args()
+    
 
     # 加载配置文件
-    config = load_config(config_file=args.config)
+    config = load_config(args.config)
 
     # 初始化日志系统
     setup_logging(log_dir=config["log_dir"])
 
     # 样本信息库文件路径
-    sample_info_path = args.sample_info
+    # sample_info_path = args.sample_info
 
     # 检查样本信息文件
-    check_out = check_sample_info_db(sample_info_path)
+    # check_out = check_sample_info_db(sample_info_path)
+
+    # 定义所有区域
+    regions = ["BJ", "GZ", "TZ", "SH","WH"]
 
     # 定义时间范围
-    # START_OFFSET = 10  # 前10小时
-    # CHECK_INTERVAL = 3600  # 每小时执行
     end_time = datetime.now()
     start_time = end_time - timedelta(hours=config["START_OFFSET"])
 
+    # 格式化时间
+    start_time_str = start_time.strftime("%Y-%m-%d %H:%M:%S")
+    end_time_str = end_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    # 循环处理每个区域
+    for region in regions:
+        logging.info(f"Processing region: {region}")
+        java_config = config["java_configs"].get(region)
+        if not java_config:
+            logging.error(f"No java_config found for region: {region}")
+            continue
+
+        # 调用 Java 接口
+        fetch_sample_data(
+            config["java"],
+            start_time_str,
+            end_time_str,
+            config["java_jar"],
+            java_config,
+            region
+        )
+
+
+
+if __name__ == "__main__":
+    main()
+    
+
+
+
     # 调用Java接口
-    fetch_out = fetch_sample_data(config["java"],
-                                  start_time.strftime("%Y-%m-%d %H:%M:%S"), 
-                                  end_time.strftime("%Y-%m-%d %H:%M:%S"), 
-                                  config["java_jar"], config["java_config"])
+    # fetch_out = fetch_sample_data(config["java"],
+    #                               start_time.strftime("%Y-%m-%d %H:%M:%S"), 
+    #                               end_time.strftime("%Y-%m-%d %H:%M:%S"), 
+    #                               config["java_jar"], config["java_configs"][args.region])
     
     
     

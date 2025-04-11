@@ -1,0 +1,268 @@
+2025-04-11 15:43:13 [INFO] 日志系统初始化完成，日志文件：/nas02/project/zhaolei/pipeline/bacteria_genome_assembly/script/logs/log_20250411_154313.txt
+2025-04-11 15:43:13 [INFO] Processing region: BJ
+2025-04-11 15:43:13 [INFO] 调用 Java 接口获取样本信息 (区域: BJ, 配置文件: /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/script/resources/config/config.properties.BJ)
+2025-04-11 15:43:14 [INFO] 样本信息获取成功
+2025-04-11 15:43:14 [INFO] Java 接口返回信息:
+成功加载配置文件: /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/script/resources/config/config.properties.BJ
+获取成功
+响应内容: {"code":201,"msg":"无满足条件的数据","data":[]}
+Data 里面没有数据表xls.
+
+
+2025-04-11 15:43:14 [WARNING] 区域 BJ 返回结果为空，无满足条件的数据。
+
+**************************************************
+2025-04-11 15:43:14 [INFO] Processing region: GZ
+2025-04-11 15:43:14 [INFO] 调用 Java 接口获取样本信息 (区域: GZ, 配置文件: /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/script/resources/config/config.properties.GZ)
+2025-04-11 15:43:16 [INFO] 样本信息获取成功
+2025-04-11 15:43:16 [INFO] Java 接口返回信息:
+成功加载配置文件: /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/script/resources/config/config.properties.GZ
+获取成功
+响应内容: {"code":200,"msg":"成功获取2条数据","data":[{"board_no":"25041020","report_time":"2025-04-11 15:38:54","detect_no":"G22504018387","report":"kfservice\/g\/primecx\/25041020\/G22504018387_R5.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/g\/primecx\/25041020\/G22504018387_R5.xls?Expires=1744443795&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=2dxxtimLYhJzoYmAOd9eZXBe%2FRg%3D"},{"board_no":"25041020","report_time":"2025-04-11 15:38:54","detect_no":"G22504018388","report":"kfservice\/g\/primecx\/25041020\/G22504018388_R5.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/g\/primecx\/25041020\/G22504018388_R5.xls?Expires=1744443795&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=AMqDHZtB%2FXGv8mAZ2v3YsBKLqG4%3D"}]}
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Apr 11, 2025 3:43:15 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25041020/G22504018387_R5.xls
+Apr 11, 2025 3:43:15 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 22c5a4bc878f3c43f05eaec5ffb5211f
+Apr 11, 2025 3:43:15 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25041020/G22504018388_R5.xls
+Apr 11, 2025 3:43:15 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 1398902cc7720972a6a1d5602cd9da68
+
+2025-04-11 15:43:16 [INFO] 区域 GZ 返回结果包含有效数据。
+
+**************************************************
+2025-04-11 15:43:16 [INFO] Processing region: TZ
+2025-04-11 15:43:16 [INFO] 调用 Java 接口获取样本信息 (区域: TZ, 配置文件: /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/script/resources/config/config.properties.TZ)
+2025-04-11 15:43:19 [INFO] 样本信息获取成功
+2025-04-11 15:43:19 [INFO] Java 接口返回信息:
+成功加载配置文件: /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/script/resources/config/config.properties.TZ
+获取成功
+响应内容: {"code":200,"msg":"成功获取32条数据","data":[{"board_no":"25040314","report_time":"2025-04-11 13:14:22","detect_no":"T22504030030","report":"kfservice\/t\/primecx\/25040314\/T22504030030_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030030_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=IPv%2BmtjEIAjBO1rAjcyqiYwOd7w%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:22","detect_no":"T22504030031","report":"kfservice\/t\/primecx\/25040314\/T22504030031_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030031_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=O6l4perYpVn1kw1LcVOXYQcg35k%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:22","detect_no":"T22504030032","report":"kfservice\/t\/primecx\/25040314\/T22504030032_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030032_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=2d7uab1uCQ5fnD%2F96zEu5uWwRyQ%3D"},{"board_no":"25040509","report_time":"2025-04-11 13:14:23","detect_no":"T22504030033","report":"kfservice\/t\/primecx\/25040509\/T22504030033_2_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040509\/T22504030033_2_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=P8t95Br0EIRSg8KPs%2BuUuf4ukNQ%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:23","detect_no":"T22504030034","report":"kfservice\/t\/primecx\/25040314\/T22504030034_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030034_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=jR2yuxWiYF5hl3%2FyXe6FcwUjxyE%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:23","detect_no":"T22504030035","report":"kfservice\/t\/primecx\/25040314\/T22504030035_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030035_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=KAMm2JODMxGixQRmoNO72uv6M0Q%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:23","detect_no":"T22504030036","report":"kfservice\/t\/primecx\/25040314\/T22504030036_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030036_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=TFY2ZKf%2FoD82FgNlbgEr2cQr1Jk%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:23","detect_no":"T22504030037","report":"kfservice\/t\/primecx\/25040314\/T22504030037_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030037_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=JeKLJflDTGJ3KOiVdE1HijKABL0%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:23","detect_no":"T22504030038","report":"kfservice\/t\/primecx\/25040314\/T22504030038_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030038_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=2tT616Utom%2BMfLbp0Cc%2Bb1oRRQQ%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:23","detect_no":"T22504030039","report":"kfservice\/t\/primecx\/25040314\/T22504030039_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030039_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=Ix4JdKBZx0vsfsXqvEmlQeWZtvE%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:23","detect_no":"T22504030040","report":"kfservice\/t\/primecx\/25040314\/T22504030040_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030040_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=Z%2FReHYuWqGg1qVB%2BNNr1dN5LMfo%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:24","detect_no":"T22504030041","report":"kfservice\/t\/primecx\/25040314\/T22504030041_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030041_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=KTvnsnO6Wvu9x7g16JtTdD6sk8s%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:24","detect_no":"T22504030042","report":"kfservice\/t\/primecx\/25040314\/T22504030042_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030042_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=3C9lEegT4XnNk%2FLER9Ba8dPAU%2F0%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:24","detect_no":"T22504030043","report":"kfservice\/t\/primecx\/25040314\/T22504030043_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030043_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=YYQG0BX5PKCbHpGJ7z2yYfDceKY%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:24","detect_no":"T22504030044","report":"kfservice\/t\/primecx\/25040314\/T22504030044_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030044_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=aDdi2XLROATLaN3plHDass7i1R4%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:24","detect_no":"T22504030045","report":"kfservice\/t\/primecx\/25040314\/T22504030045_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030045_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=qeMxCAL%2BIkIFO0sVTX5oi1TOZck%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:24","detect_no":"T22504030046","report":"kfservice\/t\/primecx\/25040314\/T22504030046_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030046_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=vO0H9VRU6iDqSRqO2YpRbSfQkY4%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:24","detect_no":"T22504030047","report":"kfservice\/t\/primecx\/25040314\/T22504030047_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030047_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=YU2RIx9jOqwphTGau0XENyVAO%2Fs%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:24","detect_no":"T22504030048","report":"kfservice\/t\/primecx\/25040314\/T22504030048_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030048_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=RMXz1RGCIyJ4uG%2BG7PppqucT%2FHI%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:24","detect_no":"T22504030049","report":"kfservice\/t\/primecx\/25040314\/T22504030049_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030049_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=9QO%2FIvqe5Y5HC555ySuxhLW6obs%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:25","detect_no":"T22504030050","report":"kfservice\/t\/primecx\/25040314\/T22504030050_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030050_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=uirFdoe7ZZcCC%2Bcxf1WRR%2FCsDC0%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:25","detect_no":"T22504030051","report":"kfservice\/t\/primecx\/25040314\/T22504030051_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030051_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=fS7708BfA%2BGnlH6vt6eB8jOM88k%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:25","detect_no":"T22504030052","report":"kfservice\/t\/primecx\/25040314\/T22504030052_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030052_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=kLOptQYEjPUESwr%2BTS0rY6nvhnw%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:25","detect_no":"T22504030053","report":"kfservice\/t\/primecx\/25040314\/T22504030053_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030053_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=Ekq41vTlZsAW2u1TMA7l4XJTAfA%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:25","detect_no":"T22504030054","report":"kfservice\/t\/primecx\/25040314\/T22504030054_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030054_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=s3ZUjnZjqYAFyd9%2F0GFlYN8IGZU%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:25","detect_no":"T22504030055","report":"kfservice\/t\/primecx\/25040314\/T22504030055_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030055_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=DP36ZEzxJGSHEE8gHKBMp84CyjY%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:25","detect_no":"T22504030056","report":"kfservice\/t\/primecx\/25040314\/T22504030056_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030056_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=ADg9vchcLEwEXYvUmWHmseGUWo8%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:25","detect_no":"T22504030057","report":"kfservice\/t\/primecx\/25040314\/T22504030057_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030057_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=unFdb1ECFPnoGMmBY19eUN0nreU%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:26","detect_no":"T22504030058","report":"kfservice\/t\/primecx\/25040314\/T22504030058_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030058_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=nNBWZdYmm0oJhsvpvYXM20mohZM%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:26","detect_no":"T22504030059","report":"kfservice\/t\/primecx\/25040314\/T22504030059_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030059_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=V%2Faim750RXw4CS4qBZIddQONHV4%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:26","detect_no":"T22504030060","report":"kfservice\/t\/primecx\/25040314\/T22504030060_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030060_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=RgdikWB13qvcq0s3TbceJOZf%2BAI%3D"},{"board_no":"25040314","report_time":"2025-04-11 13:14:26","detect_no":"T22504030061","report":"kfservice\/t\/primecx\/25040314\/T22504030061_R1.xls","status_text":"","experiment_status_text":"","sequence_status_text":"","report_path":"https:\/\/cwbiobj.oss-cn-beijing.aliyuncs.com\/kfservice\/t\/primecx\/25040314\/T22504030061_R1.xls?Expires=1744435347&OSSAccessKeyId=LTAI5tGTpTh4Uk3tt5EvSxn2&Signature=vfwX59hAi%2BwkNNkxopHIi9bQyTI%3D"}]}
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Downloading: 100%Download completed successfully.
+
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030030_R1.xls
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): da2d4d8fc8a005f5d50121b948142c12
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030031_R1.xls
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): a6a878d91c1af20fd109f220800b3ea5
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030032_R1.xls
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 2e110f57ac4fd9395c09f27a6fa344b3
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040509/T22504030033_2_R1.xls
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): bf834b3aae8a4348dfd98bd2fde23c43
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030034_R1.xls
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 59198258a210473e56d220dfdedccbf2
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030035_R1.xls
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): cdf0dd81b805bdb5e803470c25e523cc
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030036_R1.xls
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): e671681c5cf6c93a9d677c17944e8a4c
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030037_R1.xls
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): c541a764f4f46ac52b28bedbee76c51b
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030038_R1.xls
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): ce78e183f55df5908d8abd57b6392844
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030039_R1.xls
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): e4b290116dcd244b6cb80cfaa5ff97f6
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030040_R1.xls
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): e820cf860649d383cff5a4be9096d1f7
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030041_R1.xls
+Apr 11, 2025 3:43:17 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 63fb5584f461813a6947ba6de799cbec
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030042_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): ab7db02c122865f25e2d58f0e6615ba2
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030043_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 306c577a3cb1ae9bfa86fbf65fec33ab
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030044_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): a21c821c346b8eb92e10eae7d6ece90b
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030045_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 63ab33e41ddd2d3af83db91a3a13744b
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030046_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 99f73cfe40fb845698e66ec9c5d26314
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030047_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): a601ae61c250c7f0c305a3ebbf95ae03
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030048_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): de576366b406088d25a45429d67d56cd
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030049_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 0de38a7c0ee1382c294bab8040a936d0
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030050_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 54c61d4e0c64055a094b60b898d6f16d
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030051_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 9c36501e4d73d5e118991ebffc97189e
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030052_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 698cfff2205ead31e5fca0df08a7399d
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030053_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 1492d1c23ff9abc98acf0e2fae7834df
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030054_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 46cc3579980c939468ceb7eaf156bfae
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030055_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 1873b367f634226c0906c71005795e07
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030056_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 9be2dfde45340dd1f4096f7412e6636d
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030057_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 8f5626b6e0e94eb4334362b745685592
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030058_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): c801aa22263edbbf5aab17212552616e
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030059_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): cd7a5e1ae86b2ea7d8a9c965c9b525d9
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030060_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 4abdd644410d5543fc3d5bc834e53154
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File downloaded successfully and saved to: downloads/25040314/T22504030061_R1.xls
+Apr 11, 2025 3:43:18 PM FileDownloader lambda$downloadFile$0
+INFO: File checksum (MD5): 76ed8f4a6e0dabc5d5be46eca8c3b969
+
+2025-04-11 15:43:19 [INFO] 区域 TZ 返回结果包含有效数据。
+
+**************************************************
+2025-04-11 15:43:19 [INFO] Processing region: SH
+2025-04-11 15:43:19 [INFO] 调用 Java 接口获取样本信息 (区域: SH, 配置文件: /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/script/resources/config/config.properties.SH)
+2025-04-11 15:43:20 [INFO] 样本信息获取成功
+2025-04-11 15:43:20 [INFO] Java 接口返回信息:
+成功加载配置文件: /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/script/resources/config/config.properties.SH
+获取成功
+响应内容: {"code":201,"msg":"无满足条件的数据","data":[]}
+Data 里面没有数据表xls.
+
+
+2025-04-11 15:43:20 [WARNING] 区域 SH 返回结果为空，无满足条件的数据。
+
+**************************************************
+2025-04-11 15:43:20 [INFO] Processing region: WH
+2025-04-11 15:43:20 [INFO] 调用 Java 接口获取样本信息 (区域: WH, 配置文件: /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/script/resources/config/config.properties.WH)
+2025-04-11 15:43:21 [INFO] 样本信息获取成功
+2025-04-11 15:43:21 [INFO] Java 接口返回信息:
+成功加载配置文件: /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/script/resources/config/config.properties.WH
+获取成功
+响应内容: {"code":201,"msg":"无满足条件的数据","data":[]}
+Data 里面没有数据表xls.
+
+
+2025-04-11 15:43:21 [WARNING] 区域 WH 返回结果为空，无满足条件的数据。
+
+**************************************************

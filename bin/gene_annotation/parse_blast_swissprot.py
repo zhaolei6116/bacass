@@ -1,0 +1,54 @@
+import json
+import pandas as pd
+
+def load_swissprot(swissprot_file):
+    """加载 Swissprot 库文件（支持 TSV 或 JSON 格式）"""
+    if swissprot_file.endswith(".json"):
+        with open(swissprot_file, "r") as f:
+            return json.load(f)
+    elif swissprot_file.endswith(".tsv"):
+        swissprot_df = pd.read_csv(swissprot_file, sep="\t")
+        return dict(zip(swissprot_df["SequenceID"], swissprot_df["Description"]))
+    else:
+        raise ValueError("Unsupported file format. Please provide a .json or .tsv file.")
+
+def process_blast_results(blast_file, swissprot_dict, output_file):
+    """处理 BLAST 结果，结合 Swissprot 库生成最终结果"""
+    # 加载 BLAST 结果
+    blast_results = pd.read_csv(blast_file, sep="\t", header=None, names=[
+        "qseqid", "sseqid", "pident", "length", "mismatch", "gapopen", 
+        "qstart", "qend", "sstart", "send", "evalue", "bitscore"
+    ])
+
+    # 生成结果
+    results = []
+    for _, row in blast_results.iterrows():
+        qseqid = row["qseqid"]
+        sseqid = row["sseqid"]
+        description = swissprot_dict.get(sseqid, "Unknown")  # 查询 Description
+        results.append((qseqid, sseqid, description))
+
+    # 保存结果
+    result_df = pd.DataFrame(results, columns=["qseqid", "Swissprot ID", "Description"])
+    result_df.to_csv(output_file, sep="\t", index=False)
+
+    print(f"结果已保存到 {output_file}")
+
+def main():
+    import argparse
+
+    # 设置命令行参数
+    parser = argparse.ArgumentParser(description="结合 BLAST 结果和 Swissprot 库生成三列信息")
+    parser.add_argument("-b", "--blast", required=True, help="BLAST 结果文件路径")
+    parser.add_argument("-s", "--swissprot", required=True, help="Swissprot 库文件路径（支持 .json 或 .tsv 格式）")
+    parser.add_argument("-o", "--output", required=True, help="输出文件路径")
+    args = parser.parse_args()
+
+    # 加载 Swissprot 库
+    swissprot_dict = load_swissprot(args.swissprot)
+
+    # 处理 BLAST 结果
+    process_blast_results(args.blast, swissprot_dict, args.output)
+
+if __name__ == "__main__":
+    main()
