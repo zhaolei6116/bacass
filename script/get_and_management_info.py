@@ -92,7 +92,8 @@ def fetch_sample_data(java, start_time, end_time, java_jar, java_config, region)
         f'--startTime="{start_time}" --endTime="{end_time}" '
         f'--config="{java_config}"'
     )
-    print("Executing command:", cmd)
+
+    logging.info(f"Executing command:{cmd}")
     try:
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
         if result.returncode == 0:
