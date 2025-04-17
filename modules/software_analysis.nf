@@ -185,7 +185,7 @@ process nanoplot {
     
   """
   source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate /nas02/project/zhaolei/software/conda/nanoplot
-  ${params.software.nanoplot} \
+  NanoPlot \
   -t 10 \
 	--fastq ${sample_info_map.clean_filt_data} \
 	--maxlength 9000000000 \
