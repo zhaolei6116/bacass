@@ -171,7 +171,7 @@ def main():
     # check_out = check_sample_info_db(sample_info_path)
 
     # 定义所有区域
-    regions = ["BJ", "GZ", "TZ", "SH","WH"]
+    regions = ["WH", "TZ", "BJ", "GZ", "SH"]
 
     # 定义时间范围
     end_time = datetime.now()

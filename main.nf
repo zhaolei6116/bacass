@@ -12,6 +12,7 @@ include { raw;
           decontamination;
           denovo;
           report;
+         //  report2;
           release;
 } from "./workflows/analysis"
 
@@ -35,11 +36,13 @@ workflow {
    def ch_raw_result = raw(ch_samples)
    def ch_clean_result = clean(ch_raw_result)
    def ch_decontamination_result = decontamination(ch_clean_result)
-   def ch_denovo_result = denovo(ch_decontamination_result).view()
+   def ch_denovo_result = denovo(ch_decontamination_result)
 
    if (params.anno_analysys){
-      gene_anno(ch_denovo_result)|report
-      report.out|release
+      gene_anno(ch_denovo_result)
+      def ch_report_in = gene_anno.out.map {it -> it[0]}.view()
+      report(ch_report_in)|release
+      
    }else {
       def ch_report_result = report(ch_denovo_result)
       release(ch_report_result)

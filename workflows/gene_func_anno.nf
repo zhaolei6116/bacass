@@ -32,6 +32,8 @@ workflow gene_anno {
     phi_anno(extract_gene_id_out_ch)
     vfdb_anno(extract_gene_id_out_ch)
     cazy_anno(extract_gene_id_out_ch)
+
+    // nr_anno.out.sample_info_tuple.view()
     
     gene_anno_out = nr_anno.out.sample_info_tuple
          .join(go_anno.out.sample_info_tuple)

@@ -41,7 +41,7 @@ process nr_anno {
   # 比对
   ${params.software.diamond}  blastp --db ${params.database.nr} -q ${sample_info_map.cds_faa}  -e 1e-5  --query-cover 50 --subject-cover 30  --outfmt  6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids   -o  ${sample_info_map.sample_label}_nr_blast.xls
   # 获取taxid
-  cut -f 13 ${sample_info_map.sample_label}_nr_blast.xls| tr ';' '\n' | sort | uniq -c |  awk '$2 ~ /^[0-9]+$/ {print $2 "\t" $1}' | sort -k2,2 -nr | taxonkit lineage  -n  -i 2 |sed 1i'#Taxid\tCount\tLineage\tSpecies' > ${sample_info_map.sample_label}_seq2taxid.list
+  cut -f 13 ${sample_info_map.sample_label}_nr_blast.xls| tr ';' '\n' | sort | uniq -c |  awk '\$2 ~ /^[0-9]+\$/ {print \$2 "\t" \$1}' | sort -k2,2 -nr | taxonkit lineage  -n  -i 2 |sed 1i'#Taxid\tCount\tLineage\tSpecies' > ${sample_info_map.sample_label}_seq2taxid.list
   # 得到物种和计数
   sh  ${projectDir}/bin/gene_annotation/tax_sort_count.sh  ${sample_info_map.sample_label}_seq2taxid.list  ${sample_info_map.sample_label}_sorted_species_count.tsv  ${sample_info_map.sample_label}_top5.tsv
 
@@ -97,7 +97,7 @@ process cog_anno {
 process kegg_anno {
   publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/06_Gene_annotation/KEGG/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
-  maxRetries 2
+  maxRetries 5
   tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:

@@ -236,3 +236,19 @@ workflow release {
   emit:
     get_release.out
 }
+
+// workflow report2 {
+//   take:
+//     sample_info_map
+  
+//   main:
+//     get_report(sample_info_map)
+//     get_report_out_ch = get_report.out.sample_info_tuple
+//                           .map {samples_info, report_html ->
+//                           samples_info + ["report_html": report_html]
+//                           }
+
+//   emit:
+//     report_out = get_report_out_ch
+// }
+

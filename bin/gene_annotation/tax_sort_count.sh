@@ -22,7 +22,9 @@ awk -F'\t' '
 }
 END {
     for (species in species_count) {
-        print species "\t" species_count[species]  # 使用 Tab 分隔输出
+        if ( species_count[species] >= 3) {
+            print species "\t" species_count[species]  # 使用 Tab 分隔输出
+        }
     }
 }' "$input_file" | sort -t$'\t' -k2,2nr -k1,1 > "$sorted_output_file"
 
