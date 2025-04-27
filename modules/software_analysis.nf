@@ -161,7 +161,7 @@ process filtlong {
     """
     ${params.software.filtlong} \
       --min_length 1000 \
-      --keep_percent 60 \
+      --keep_percent 95 \
       ${cut_clean_data} |  gzip > ${sample_info_map.sample_label}.clean.filt.fastq.gz
     """
 
