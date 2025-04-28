@@ -490,12 +490,14 @@ process medakaConsensus {
         tuple val(sample_info_map),path("consensus_probs*.hdf")
             
     output:
-        tuple val(sample_info_map), path("${sample_info_map.sample_label}.medaka.order.fasta"),  emit: sample_info_tuple
+        tuple val(sample_info_map), path("${sample_info_map.sample_label}.medaka.order.fasta"), path("${sample_info_map.sample_label}.medaka.fastq") emit: sample_info_tuple
+        
     
     shell:
     """
     source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate  /nas02/project/zhaolei/software/conda/conda_env/medaka
-    medaka sequence --threads 4  consensus_probs*.hdf   ${sample_info_map.flye_fa}    ${sample_info_map.sample_label}.medaka.fasta
+    medaka sequence --threads 4   --qualities  consensus_probs*.hdf   ${sample_info_map.flye_fa}    ${sample_info_map.sample_label}.medaka.fastq
+    ${params.software.seqkit} fq2fa  ${sample_info_map.sample_label}.medaka.fastq  ${sample_info_map.sample_label}.medaka.fasta
     add_model_to_fasta.sh dna_r10.4.1_e8.2_400bps_sup@v4.3.0  "${sample_info_map.sample_label}.medaka.fasta"
     /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/python /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/bin/fa_order.py --fasta_file ${sample_info_map.sample_label}.medaka.fasta --output_fasta ${sample_info_map.sample_label}.medaka.order.fasta
     """
@@ -582,10 +584,10 @@ process re_align {
   tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
-      tuple val(sample_info_map),path(medaka_consence)
+      tuple val(sample_info_map), path(medaka_consence), path(medaka_consence_fq)
 
   output:
-      tuple val(sample_info_map),path(medaka_consence), path("${sample_info_map.sample_label}_calls_to_consence.bam"),   emit:sample_info_tuple
+      tuple val(sample_info_map),path(medaka_consence), path(medaka_consence_fq), path("${sample_info_map.sample_label}_calls_to_consence.bam"),   emit:sample_info_tuple
       path("*")
   //  beforeScript = "source /nas02/software/conda/Miniconda3/miniconda3/bin/activate" 
 
@@ -604,7 +606,7 @@ process assembly_stat {
   tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
   input:
-    tuple val(sample_info_map),path(medaka_consence),path(consence_bam)
+    tuple val(sample_info_map),path(medaka_consence), path(medaka_consence_fq), path(consence_bam)
 
   output:
     tuple val(sample_info_map),path("${sample_info_map.sample_label}_assembly.fna"), path(consence_bam), path("${sample_info_map.sample_label}_genome_stat.tsv"), path("${sample_info_map.sample_label}_contig_stat.xls"), path("output_figures/${sample_info_map.sample_label}-${sample_info_map.longest_contig}.coverage.png"),path("${sample_info_map.sample_label}_replicon.tsv"), emit:sample_info_tuple
@@ -624,8 +626,10 @@ process assembly_stat {
   # contig info summary
   get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_label}_contig_stat1.xls
   contig_filter_and_sort.py --contig_stat  ${sample_info_map.sample_label}_contig_stat1.xls  --in_fna  ${medaka_consence} --out_fna ${sample_info_map.sample_label}_assembly.fna  --out_stat  ${sample_info_map.sample_label}_contig_stat.xls
-  # ln -s ${medaka_consence}  ${sample_info_map.sample_label}_assembly.fna 
-  # ln -s ${sample_info_map.sample_label}_contig_stat1.xls  ${sample_info_map.sample_label}_contig_stat.xls
+  
+  cut -f1 ${sample_info_map.sample_label}_contig_stat.xls | sed '1d'  > contig.list
+  ${params.software.seqtk}  subseq  ${medaka_consence_fq}  contig.list > ${sample_info_map.sample_label}_assembly.fq 
+
   get_bakta_replicon.py -i ${sample_info_map.sample_label}_contig_stat.xls -o ${sample_info_map.sample_label}_replicon.tsv
 
 
@@ -790,6 +794,7 @@ ln -fs  \${dir}/01_rawdata/${sample_info_map.sample_label}.cut_raw.fastq.gz     
 ln -fs  \${dir}/03_Decontamination/top10.tsv        Release/Decontamination
 # ln -fs    \${dir}/04_Assembly/${sample_info_map.sample_label}_updated_flye_stat.tsv             Release/Assembly/
 ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_label}_assembly.fna        Release/Assembly/
+ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_label}_assembly.fq        Release/Assembly/
 ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_label}_genome_stat.tsv           Release/Assembly/
 ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_label}_contig_stat.xls           Release/Assembly/
 ln -fs    \${dir}/04_Assembly/Realign/output_figures                           Release/Assembly/

@@ -4,6 +4,7 @@
 reorder_and_summarize_contigs.py
 
 Description:
+    过滤条件：成环 或者，长度大于 2000bp, 对过滤后的fa 按长度进行排序,并重新命名contig. 
     This script processes assembly outputs from Flye to reorder contigs by length,
     rename them sequentially, and update statistics file accordingly. It also calculates
     the total number of sequence chunks based on a given chunk size and identifies the
