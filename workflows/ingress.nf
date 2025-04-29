@@ -75,7 +75,8 @@ workflow ingress_flow {
                     species_name : row.Species_name,
                     genome_size  : row.Genome_size,
                     data_volume  : row.Data_volume,
-                    report_path  : row.Report_path,                    
+                    report_path  : row.Report_path,
+                    report_raw_path : row.Report_raw_path,
                 ]
             }
     }

@@ -490,14 +490,14 @@ process medakaConsensus {
         tuple val(sample_info_map),path("consensus_probs*.hdf")
             
     output:
-        tuple val(sample_info_map), path("${sample_info_map.sample_label}.medaka.order.fasta"), path("${sample_info_map.sample_label}.medaka.fastq") emit: sample_info_tuple
+        tuple val(sample_info_map), path("${sample_info_map.sample_label}.medaka.order.fasta"), path("${sample_info_map.sample_label}.medaka.fastq"), emit: sample_info_tuple
         
     
     shell:
     """
     source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate  /nas02/project/zhaolei/software/conda/conda_env/medaka
     medaka sequence --threads 4   --qualities  consensus_probs*.hdf   ${sample_info_map.flye_fa}    ${sample_info_map.sample_label}.medaka.fastq
-    ${params.software.seqkit} fq2fa  ${sample_info_map.sample_label}.medaka.fastq  ${sample_info_map.sample_label}.medaka.fasta
+    ${params.software.seqkit} fq2fa  ${sample_info_map.sample_label}.medaka.fastq  -o  ${sample_info_map.sample_label}.medaka.fasta
     add_model_to_fasta.sh dna_r10.4.1_e8.2_400bps_sup@v4.3.0  "${sample_info_map.sample_label}.medaka.fasta"
     /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/python /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/bin/fa_order.py --fasta_file ${sample_info_map.sample_label}.medaka.fasta --output_fasta ${sample_info_map.sample_label}.medaka.order.fasta
     """
@@ -777,16 +777,28 @@ process get_release {
     path("release.sh")
 
   script:
+  def labMapping = ['B': 'BJ', 'W': 'WH', 'T': 'TZ', 'S': 'SH', 'G': 'GZ']
+  def firstLetter = sample_info_map.sample_id?.charAt(0)
+  def labCode = labMapping["${firstLetter}"]
+
+
+  if (labCode == null) {
+      println "警告：样本来源实验室不明确，使用默认BJ"
+      labCode = "BJ"  // 或者其他默认值
+  }
+
+
+
   """
 cat > release.sh << 'EOF'
 dir=\$(pwd)
-mkdir -p Release/Rawdata
+mkdir -p Rawdata
 # mkdir -p Release/Cleandata
 mkdir -p Release/Decontamination
 mkdir -p Release/Assembly
 mkdir -p Release/Genome_Annotion
 mkdir -p Release/Report
-ln -fs  \${dir}/01_rawdata/${sample_info_map.sample_label}.cut_raw.fastq.gz               Release/Rawdata/${sample_info_map.sample_label}.raw.fastq.gz
+ln -fs  \${dir}/01_rawdata/${sample_info_map.sample_label}.cut_raw.fastq.gz               Rawdata/${sample_info_map.sample_label}.raw.fastq.gz
 # ln -fs  ${sample_info_map.raw_qc}                 Release/Rawdata/
 # ln -fs  ${sample_info_map.clean_filt_data}        Release/Cleandata
 # ln -fs  ${sample_info_map.clean_qc}               Release/Cleandata
@@ -816,9 +828,11 @@ ln -fs    ${sample_info_map.report_html}            Release/Report
 ln -fs    ${projectDir}/bin/release_readme.txt      Release/Readme.txt
 
 ${params.software.zip}  -r  ${sample_info_map.sample_id}.zip   Release/
-/usr/bin/ossutil64  cp ${sample_info_map.sample_id}.zip   oss://cwbiobj${sample_info_map.report_path}  -c ${params.database.ossconfig_bj}
+${params.software.zip}  -r  ${sample_info_map.sample_id}_rawdata.zip  Rawdata/
+${params.software.ossutil64}  cp ${sample_info_map.sample_id}.zip   oss://cwbiobj${sample_info_map.report_path}  -c ${params.database.ossconfig_bj}
+${params.software.ossutil64}  cp ${sample_info_map.sample_id}_rawdata.zip   oss://cwbiobj${sample_info_map.report_raw_path}  -c ${params.database.ossconfig_bj}
 echo -e "${sample_info_map.sample_id}\\tseqconfirm\\t${sample_info_map.report_path}\\t-\\t-" > ${sample_info_map.sample_id}.judge.txt
-/nas02/software/jdk-22.0.1/bin/java -jar /nas02/project/fengdong/04.pipe/pipe.xml/Bin/FTGSpipeV3/10.Judge/CwbioPutDataLims.jar --config /nas02/project/fengdong/04.pipe/pipe.xml/Bin/FTGSpipeV3/10.Judge/config/config.properties.BJ  --path ${sample_info_map.sample_id}.judge.txt
+${params.software.java} -jar ${projectDir}/script/resources/CwbioRequestDataLims.V2.jar --config ${projectDir}/script/resources/config/config.properties.${labCode}  --path ${sample_info_map.sample_id}.judge.txt
 
 EOF
   """
