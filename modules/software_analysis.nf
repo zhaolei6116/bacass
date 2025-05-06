@@ -610,7 +610,7 @@ process assembly_stat {
 
   output:
     tuple val(sample_info_map),path("${sample_info_map.sample_label}_assembly.fna"), path(consence_bam), path("${sample_info_map.sample_label}_genome_stat.tsv"), path("${sample_info_map.sample_label}_contig_stat.xls"), path("output_figures/${sample_info_map.sample_label}-${sample_info_map.longest_contig}.coverage.png"),path("${sample_info_map.sample_label}_replicon.tsv"), emit:sample_info_tuple
-    path("*")
+    path("${sample_info_map.sample_label}_assembly.fq")
 
 
   beforeScript 'source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate'
@@ -623,15 +623,26 @@ process assembly_stat {
   #cov and dep, for contig 整体的
   ${params.software.samtools}  coverage  ${consence_bam}  -o ${sample_info_map.sample_label}_cov_dep.stat
   
-  # contig info summary
+  # 获取 phylum 信息
+  species_name="${sample_info_map.species_name}"
+  phylum=\$(echo "\${species_name}" | cut -f1 -d ' ' | taxonkit name2taxid | taxonkit lineage -i 2  | taxonkit reformat -i 3 -f "p__{p}" -F |cut -f4)
+
+  # 判断是否属于 Actinomycetota
+  if [[ "\${phylum}" == "p__Actinomycetota" ]]; then
+    echo "Species belongs to Actinomycetota. Skipping contig_filter_and_sort.py..."
+    get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_label}_contig_stat.xls
+    ln -s ${medaka_consence}  ${sample_info_map.sample_label}_assembly.fna
+    ln -s ${medaka_consence_fq} ${sample_info_map.sample_label}_assembly.fq
+  else
+    # 执行 contig_filter_and_sort.py
+    # contig info summary
   get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_label}_contig_stat1.xls
   contig_filter_and_sort.py --contig_stat  ${sample_info_map.sample_label}_contig_stat1.xls  --in_fna  ${medaka_consence} --out_fna ${sample_info_map.sample_label}_assembly.fna  --out_stat  ${sample_info_map.sample_label}_contig_stat.xls
-  
   cut -f1 ${sample_info_map.sample_label}_contig_stat.xls | sed '1d'  > contig.list
   ${params.software.seqtk}  subseq  ${medaka_consence_fq}  contig.list > ${sample_info_map.sample_label}_assembly.fq 
+  fi
 
   get_bakta_replicon.py -i ${sample_info_map.sample_label}_contig_stat.xls -o ${sample_info_map.sample_label}_replicon.tsv
-
 
   # 统计基因组信息
   ${params.software.assembly_stats} -t ${sample_info_map.sample_label}_assembly.fna > assembly_stats.tsv
