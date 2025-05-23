@@ -30,7 +30,7 @@ def process_blast_results(blast_file, card_dict, output_file):
         results.append((qseqid, sseqid, name))
 
     # 保存结果
-    result_df = pd.DataFrame(results, columns=["qseqid", "ARO ID", "name"])
+    result_df = pd.DataFrame(results, columns=["ProtID", "ARO ID", "Name"])
     result_df.to_csv(output_file, sep="\t", index=False)
 
     print(f"结果已保存到 {output_file}")

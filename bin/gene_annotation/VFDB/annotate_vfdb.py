@@ -38,6 +38,7 @@ def get_vf_info(setb_data, vfs_data, sseqid):
         }
     else:
         # 从 setB.json 获取替代信息
+        
         return {
             'VFID': vf_id,
             'VF_Name': setb_info.get('VF_name', ''),
@@ -57,8 +58,8 @@ def main(blast_path, setb_path, vfs_path, output_path):
     # 写入 TSV 文件
     with open(output_path, 'w', encoding='utf-8', newline='') as out_file:
         writer = csv.writer(out_file, delimiter='\t')
-        writer.writerow(['GeneID', 'VF_gene_id', 'VFID', 'VF_Name', 'Bacteria', 'VFCID', 'VFcategory', 'Function', 'Mechanism'])
-
+        # writer.writerow(['GeneID', 'VF_gene_id', 'VFID', 'VF_Name', 'Bacteria', 'VFCID', 'VFcategory', 'Function', 'Mechanism'])
+        writer.writerow(['GeneID',  'VFID', 'VF_Name', 'Bacteria', 'VFCID', 'VFcategory', 'Function'])
         # 解析 BLAST 文件并关联信息
         for row in parse_blast(blast_path):
             qseqid, sseqid = row[0], row[1]
@@ -66,14 +67,14 @@ def main(blast_path, setb_path, vfs_path, output_path):
             if vf_info:
                 writer.writerow([
                     qseqid,
-                    sseqid,
+                    # sseqid,
                     vf_info['VFID'],
                     vf_info['VF_Name'],
                     vf_info['Bacteria'],
                     vf_info['VFCID'],
                     vf_info['VFcategory'],
                     vf_info['Function'],
-                    vf_info['Mechanism']
+                    # vf_info['Mechanism']
                 ])
 
 if __name__ == '__main__':

@@ -616,6 +616,9 @@ process assembly_stat {
   beforeScript 'source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate'
 
   script:
+  
+  def species_name = sample_info_map.species_name.replaceAll(/^"(.*)"$/, '$1')
+
   """
   #gc
   ${params.software.seqtk} comp ${medaka_consence}  | cut -f1,2,3,4,5,6  > assembly_gc.list
@@ -624,9 +627,9 @@ process assembly_stat {
   ${params.software.samtools}  coverage  ${consence_bam}  -o ${sample_info_map.sample_label}_cov_dep.stat
   
   # 获取 phylum 信息
-  species_name="${sample_info_map.species_name}"
-  phylum=\$(echo "\${species_name}" | cut -f1 -d ' ' | taxonkit name2taxid | taxonkit lineage -i 2  | taxonkit reformat -i 3 -f "p__{p}" -F |cut -f4)
-
+  species_name="${species_name}" 
+  phylum=\$(echo "\${species_name}" | cut -f1 -d ' ' | ${params.software.taxonkit} name2taxid | ${params.software.taxonkit} lineage -i 2  | ${params.software.taxonkit} reformat -i 3 -f "p__{p}" -F |cut -f4)
+  echo \${phylum}
   # 判断是否属于 Actinomycetota
   if [[ "\${phylum}" == "p__Actinomycetota" ]]; then
     echo "Species belongs to Actinomycetota. Skipping contig_filter_and_sort.py..."
@@ -840,10 +843,10 @@ ln -fs    ${projectDir}/bin/release_readme.txt      Release/Readme.txt
 
 ${params.software.zip}  -r  ${sample_info_map.sample_id}.zip   Release/
 ${params.software.zip}  -r  ${sample_info_map.sample_id}_rawdata.zip  Rawdata/
-${params.software.ossutil64}  cp ${sample_info_map.sample_id}.zip   oss://cwbiobj${sample_info_map.report_path}  -c ${params.database.ossconfig_bj}
-${params.software.ossutil64}  cp ${sample_info_map.sample_id}_rawdata.zip   oss://cwbiobj${sample_info_map.report_raw_path}  -c ${params.database.ossconfig_bj}
+${params.software.ossutil64}  cp -f  ${sample_info_map.sample_id}.zip   oss://cwbiobj${sample_info_map.report_path}  -c ${params.database.ossconfig_bj}
+${params.software.ossutil64}  cp -f ${sample_info_map.sample_id}_rawdata.zip   oss://cwbiobj${sample_info_map.report_raw_path}  -c ${params.database.ossconfig_bj}
 echo -e "${sample_info_map.sample_id}\\tseqconfirm\\t${sample_info_map.report_path}\\t-\\t-" > ${sample_info_map.sample_id}.judge.txt
-${params.software.java} -jar ${projectDir}/script/resources/CwbioRequestDataLims.V2.jar --config ${projectDir}/script/resources/config/config.properties.${labCode}  --path ${sample_info_map.sample_id}.judge.txt
+${params.software.java} -jar ${projectDir}/script/resources/CwbioPutDataLims.V2.jar --config ${projectDir}/script/resources/config/config.properties.${labCode}  --path ${sample_info_map.sample_id}.judge.txt
 
 EOF
   """

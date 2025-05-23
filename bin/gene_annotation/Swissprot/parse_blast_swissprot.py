@@ -29,7 +29,7 @@ def process_blast_results(blast_file, swissprot_dict, output_file):
         results.append((qseqid, sseqid, description))
 
     # 保存结果
-    result_df = pd.DataFrame(results, columns=["qseqid", "Swissprot ID", "Description"])
+    result_df = pd.DataFrame(results, columns=["ProtID", "Swissprot ID", "Description"])
     result_df.to_csv(output_file, sep="\t", index=False)
 
     print(f"结果已保存到 {output_file}")

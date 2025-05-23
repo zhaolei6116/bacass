@@ -38,7 +38,7 @@ workflow {
    def ch_decontamination_result = decontamination(ch_clean_result)
    def ch_denovo_result = denovo(ch_decontamination_result)
 
-   if (params.anno_analysys){
+   if (params.anno_analysis){
       gene_anno(ch_denovo_result)
       def ch_report_in = gene_anno.out.map {it -> it[0]}.view()
       report(ch_report_in)|release

@@ -17,7 +17,7 @@ final_output_file="$3"
 
 # 使用 awk 统计每个物种的 count 总数，并按顺序排序
 awk -F'\t' '
- NR > 1  {  # 忽略表头
+ NR > 1 && $NF != ""  {  # 忽略表头
     species_count[$NF] += $2  # 按最后一列（species）累加 count
 }
 END {
