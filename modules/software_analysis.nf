@@ -220,7 +220,7 @@ process qc_stat {
   script:
     
   """  
-  get_qc_stat.py -raw ${sample_info_map.raw_qc}  -clean  ${sample_info_map.clean_qc}   -o ${sample_info_map.sample_label}_qc_stat.xls
+  python ${projectDir}/bin/02_Cleandata/get_qc_stat.py -raw ${sample_info_map.raw_qc}  -clean  ${sample_info_map.clean_qc}   -o ${sample_info_map.sample_label}_qc_stat.xls
   """
 }
 
@@ -297,7 +297,7 @@ process top_10 {
   """
   # source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate
   ${params.software.csvtk}  sort -t -k 7:nr  ${sample_info_map.bracken_out}|${params.software.csvtk} head|${params.software.csvtk} cut -t -f 1,6 >  top10.tsv
-  top10_plot.py  top10.tsv
+  python ${projectDir}/bin/03_Decontamination/top10_plot.py  top10.tsv
   """
   
 }
@@ -387,7 +387,7 @@ process reorder_and_summarize {
 
   script:
   """
-  reorder_and_summarize_contigs.py   --fasta_file  ${flye_fa}  --stats_file  ${flye_out_stat}  --chunk_size ${params.chunk_size} --prefix ${sample_info_map.sample_label}
+  python ${projectDir}/bin/04_Assembly/reorder_and_summarize_contigs.py   --fasta_file  ${flye_fa}  --stats_file  ${flye_out_stat}  --chunk_size ${params.chunk_size} --prefix ${sample_info_map.sample_label}
   """
     
 }
@@ -498,8 +498,9 @@ process medakaConsensus {
     source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate  /nas02/project/zhaolei/software/conda/conda_env/medaka
     medaka sequence --threads 4   --qualities  consensus_probs*.hdf   ${sample_info_map.flye_fa}    ${sample_info_map.sample_label}.medaka.fastq
     ${params.software.seqkit} fq2fa  ${sample_info_map.sample_label}.medaka.fastq  -o  ${sample_info_map.sample_label}.medaka.fasta
-    add_model_to_fasta.sh dna_r10.4.1_e8.2_400bps_sup@v4.3.0  "${sample_info_map.sample_label}.medaka.fasta"
-    /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/python /nas02/project/zhaolei/pipeline/bacteria_genome_assembly/bin/fa_order.py --fasta_file ${sample_info_map.sample_label}.medaka.fasta --output_fasta ${sample_info_map.sample_label}.medaka.order.fasta
+    ${projectDir}/bin/04_Assembly/add_model_to_fasta.sh dna_r10.4.1_e8.2_400bps_sup@v4.3.0  "${sample_info_map.sample_label}.medaka.fasta"
+
+    ${params.software.python}  ${projectDir}/bin/04_Assembly/fa_order.py --fasta_file ${sample_info_map.sample_label}.medaka.fasta --output_fasta ${sample_info_map.sample_label}.medaka.order.fasta
     """
 }
 
@@ -561,19 +562,19 @@ process re_align_bac {
   source  /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate base
   # 统计基因组信息
   ${params.software.assembly_stats} -t ${medaka_consence} > assembly_stats.tsv
-  get_report_assembly_stat.py assembly_stats.tsv  ${sample_info_map.sample_label}_genome_stat.tsv
+  ${params.software.python}  ${projectDir}/bin/04_Assembly/get_report_assembly_stat.py assembly_stats.tsv  ${sample_info_map.sample_label}_genome_stat.tsv
 
   #gc
   ${params.software.seqtk} comp ${medaka_consence}  | cut -f1,2,3,4,5,6  > assembly_gc.list
   #cov and dep, for contig 整体的
   ${params.software.samtools}  coverage  ${sample_info_map.sample_label}_calls_to_consence.bam  -o ${sample_info_map.sample_label}_cov_dep.stat
   # contig info summary
-  get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -o ${sample_info_map.sample_label}_contig_stat.xls
+  ${params.software.python}  ${projectDir}/bin/04_Assembly/get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -o ${sample_info_map.sample_label}_contig_stat.xls
 
   ${params.software.faidx}  ${medaka_consence} -i   chromsizes > genome.size
   ${params.software.bedtools} makewindows -g genome.size  -w ${params.dep_png_bin_size}  > dep_bin.bed
   ${params.software.bedtools} coverage  -a dep_bin.bed  -b ${sample_info_map.sample_label}_calls_to_consence.bam -mean  > bed_mean_cov.txt
-  plot_depth.py bed_mean_cov.txt output_figures ${sample_info_map.sample_label}
+  ${params.software.python}  ${projectDir}/bin/04_Assembly/plot_depth.py bed_mean_cov.txt output_figures ${sample_info_map.sample_label}
   """
 }
 
@@ -633,29 +634,29 @@ process assembly_stat {
   # 判断是否属于 Actinomycetota
   if [[ "\${phylum}" == "p__Actinomycetota" ]]; then
     echo "Species belongs to Actinomycetota. Skipping contig_filter_and_sort.py..."
-    get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_label}_contig_stat.xls
+    ${params.software.python}  ${projectDir}/bin/04_Assembly/get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_label}_contig_stat.xls
     ln -s ${medaka_consence}  ${sample_info_map.sample_label}_assembly.fna
     ln -s ${medaka_consence_fq} ${sample_info_map.sample_label}_assembly.fq
   else
     # 执行 contig_filter_and_sort.py
     # contig info summary
-  get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_label}_contig_stat1.xls
-  contig_filter_and_sort.py --contig_stat  ${sample_info_map.sample_label}_contig_stat1.xls  --in_fna  ${medaka_consence} --out_fna ${sample_info_map.sample_label}_assembly.fna  --out_stat  ${sample_info_map.sample_label}_contig_stat.xls
+  ${params.software.python}  ${projectDir}/bin/04_Assembly/get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_label}_contig_stat1.xls
+  ${params.software.python}  ${projectDir}/bin/04_Assembly/contig_filter_and_sort.py --contig_stat  ${sample_info_map.sample_label}_contig_stat1.xls  --in_fna  ${medaka_consence} --out_fna ${sample_info_map.sample_label}_assembly.fna  --out_stat  ${sample_info_map.sample_label}_contig_stat.xls
   cut -f1 ${sample_info_map.sample_label}_contig_stat.xls | sed '1d'  > contig.list
   ${params.software.seqtk}  subseq  ${medaka_consence_fq}  contig.list > ${sample_info_map.sample_label}_assembly.fq 
   fi
 
-  get_bakta_replicon.py -i ${sample_info_map.sample_label}_contig_stat.xls -o ${sample_info_map.sample_label}_replicon.tsv
+  ${params.software.python}  ${projectDir}/bin/04_Assembly/get_bakta_replicon.py -i ${sample_info_map.sample_label}_contig_stat.xls -o ${sample_info_map.sample_label}_replicon.tsv
 
   # 统计基因组信息
   ${params.software.assembly_stats} -t ${sample_info_map.sample_label}_assembly.fna > assembly_stats.tsv
-  get_report_assembly_stat.py assembly_stats.tsv  ${sample_info_map.sample_label}_genome_stat.tsv
+  ${params.software.python}  ${projectDir}/bin/04_Assembly/get_report_assembly_stat.py assembly_stats.tsv  ${sample_info_map.sample_label}_genome_stat.tsv
 
 
   ${params.software.faidx}  ${sample_info_map.sample_label}_assembly.fna  -i   chromsizes > genome.size
   ${params.software.bedtools} makewindows -g genome.size  -w ${params.dep_png_bin_size}  > dep_bin.bed
   ${params.software.bedtools} coverage  -a dep_bin.bed  -b ${consence_bam} -mean  > bed_mean_cov.txt
-  plot_depth.py bed_mean_cov.txt output_figures ${sample_info_map.sample_label}
+  ${params.software.python}  ${projectDir}/bin/04_Assembly/plot_depth.py bed_mean_cov.txt output_figures ${sample_info_map.sample_label}
   """
 }
 
@@ -679,7 +680,7 @@ process contig_stat {
   #cov and dep, for contig 整体的
   ${params.software.samtools}  coverage  ${consence_bam}  -o ${sample_info_map.sample_label}_cov_dep.stat
   # contig info summary
-  get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -o ${sample_info_map.sample_label}_contig_stat.xls
+  ${params.software.python}  ${projectDir}/bin/04_Assembly/get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -o ${sample_info_map.sample_label}_contig_stat.xls
   """
 
 }
@@ -704,7 +705,7 @@ process depth_stat_png {
   ${params.software.faidx}  ${medaka_consence} -i   chromsizes > genome.size
   ${params.software.bedtools} makewindows -g genome.size  -w ${params.dep_png_bin_size}  > dep_bin.bed
   ${params.software.bedtools} coverage  -a dep_bin.bed  -b ${consence_bam} -mean  > bed_mean_cov.txt
-  plot_depth.py bed_mean_cov.txt output_figures ${sample_info_map.sample_label}
+  ${params.software.python}  ${projectDir}/bin/04_Assembly/plot_depth.py bed_mean_cov.txt output_figures ${sample_info_map.sample_label}
   """
 
 }
@@ -772,8 +773,8 @@ process get_report {
   ln -fs ${sample_info_map.circos_png}  images/genome_circos.png
   ln -fs ${sample_info_map.depth_png}  images/depth_coverage.png
 
-  get_summary.py  -p ${sample_info_map.project_id} -sp "${species_name}"  -s  tables/qc_stat.xls   -a tables/assemble_stat_table.tsv -cds ${sample_info_map.cds_tsv}   -o tables/pj_summary.xls
-  generate_report.py  -p ${sample_info_map.sample_label}
+  ${params.software.python}  ${projectDir}/bin/06_report/get_summary.py  -p ${sample_info_map.project_id} -sp "${species_name}"  -s  tables/qc_stat.xls   -a tables/assemble_stat_table.tsv -cds ${sample_info_map.cds_tsv}   -o tables/pj_summary.xls
+  ${params.software.python}  ${projectDir}/bin/06_report/generate_report.py  -p ${sample_info_map.sample_label}
   """
 
 }

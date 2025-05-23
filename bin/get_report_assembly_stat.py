@@ -1,1 +1,0 @@
-04_Assembly/get_report_assembly_stat.py
