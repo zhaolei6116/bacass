@@ -64,6 +64,7 @@ workflow ingress_flow {
                  def barcode_seq = getBarcode(barcode_version, barcode_id)
                 
                 [
+                    project_name : row.Project,
                     project_id   : row.Client,
                     sample_id    : row.Detect_no,
                     sample_name  : row.Sample_name,

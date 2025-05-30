@@ -590,13 +590,13 @@ pre {
                                     <a href="#c_3">3.3 基因组组装</a>
                                     <ul class="nav">
                                         <li>
-                                            <a href="#c_3_1">3.3.1 基因组组装结果</a>
+                                            <a href="#c_2_1">3.3.1 基因组组装结果</a>
                                         </li>
                                         <li>
-                                            <a href="#c_3_2">3.3.2 基因组组装评估</a>
+                                            <a href="#c_2_2">3.3.2 基因组组装评估</a>
                                         </li>
                                         <li>
-                                            <a href="#c_3_3">3.3.3 Contig 统计</a>
+                                            <a href="#c_2_3">3.3.3 Contig 统计</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -604,6 +604,39 @@ pre {
                                 <li>
                                     <a href="#c_4">3.4 圈图</a>
 
+                                </li>
+
+                                <li>
+                                    <a href="#c_5">3.5 基因功能注释</a>
+                                    <ul class="nav">
+                                        <li>
+                                            <a href="#c_5_1">3.5.1 NR数据库注释</a>
+                                        </li>
+                                        <li>
+                                            <a href="#c_5_2">3.5.2 Swiss-Prot数据库注释</a>
+                                        </li>
+                                        <li>
+                                            <a href="#c_5_3">3.5.3 COG功能注释</a>
+                                        </li>
+                                        <li>
+                                            <a href="#c_5_4">3.5.4 KEGG代谢通路注释</a>
+                                        </li>
+                                        <li>
+                                            <a href="#c_5_5">3.5.5 GO注释</a>
+                                        </li>
+                                        <li>
+                                            <a href="#c_5_6">3.5.6 碳水化合物活性酶(CAZy)注释</a>
+                                        </li>
+                                        <li>
+                                            <a href="#c_5_7">3.5.7 抗生素抗性(CARD)基因注释</a>
+                                        </li>
+                                        <li>
+                                            <a href="#c_5_8">3.5.8 毒力因子(VFDB)注释</a>
+                                        </li>
+                                        <li>
+                                            <a href="#c_5_9">3.5.9 致病基因(PHI)注释</a>
+                                        </li>
+                                    </ul>
                                 </li>
 
                             </ul>
@@ -649,6 +682,21 @@ pre {
                                 </li>
                                 <li>
                                     <a href="#d_4">5.4 基因组圈图</a>
+                                </li>
+
+                                <li>
+                                    <a href="#d_5">5.5 基因功能注释</a>
+                                    <ul class="nav">
+                                        <li><a href="#d_5_1">5.5.1 NR 数据库注释</a></li>
+                                        <li><a href="#d_5_2">5.5.2 Swiss-Prot 数据库注释</a></li>
+                                        <li><a href="#d_5_3">5.5.3 COG 数据库注释</a></li>
+                                        <li><a href="#d_5_4">5.5.4 KEGG 数据库注释</a></li>
+                                        <li><a href="#d_5_5">5.5.5 GO 数据库注释</a></li>
+                                        <li><a href="#d_5_6">5.5.6 CAZy 数据库注释</a></li>
+                                        <li><a href="#d_5_7">5.5.7 CARD 数据库注释</a></li>
+                                        <li><a href="#d_5_8">5.5.8 VFDB 数据库注释</a></li>
+                                        <li><a href="#d_5_9">5.5.9 PHI 数据库注释</a></li>
+                                    </ul>
                                 </li>
                             </ul>
                         </li>
@@ -777,7 +825,120 @@ pre {
                         <div class="content_img">
                             <img id="genome_circos_png" alt="基因组圈图">
                         </div>
-                        <h6>图3.3 基因组圈图</h6>
+                        <h6>图3.4 基因组圈图</h6>
+
+                       
+
+
+                        <h4 id="c_5">3.5 基因功能注释</h4>
+                        
+                        <h5 id="c_5_1">3.5.1 NR数据库注释</h5>
+                                
+                                <p>
+                                    NR数据库是非冗余蛋白质数据库合集，使用NR库注释蛋白的同时含有物种信息，可用作物种分类。NR数据库注释物种分类具体数目如下所示。
+                                </p>
+                                
+                                <h6> Table3.4 NR数据库物种分布 </h6>
+                                <div class="content_table">
+                                    {{ nr_table | safe }}
+                                </div>
+
+                                <div class="content_img">
+                                    <img id="nr_png" alt="nr_png">
+                                </div>
+                                <h6>图3.5 NR数据库物种分布统计</h6>
+
+
+
+                        <h5 id="c_5_2">3.5.2 Swiss-Prot数据库注释</h5>
+                                <p>
+                                    Swiss-Prot是高质量的、手工注释的、非冗余的蛋白数据库，根据swissprot对蛋白功能进行注释，并对30%覆盖率以上的结果进行过滤,生成注释表格文件如下。
+                                </p>
+
+                                <h6> Table3.5 Swiss-Prot数据库注释信息 </h6>
+                                <div class="content_table">
+                                    {{ swissprot_table | safe }}
+                                </div>
+
+                        <h5 id="c_5_3">3.5.3 COG功能注释</h5>
+                                <p>
+                                    对注释到COG数据库的蛋白功能进行分类统计，结果如下所示。
+                                </p>
+                            
+                                <div class="content_img">
+                                    <img id="cog_png" alt="cog_png">
+                                </div>
+                                <h6>图3.6 COG数据库功能分类统计</h6>
+                            
+                        <h5 id="c_5_4">3.5.4 KEGG代谢通路注释</h5>
+                                <p>
+                                    对注释到KEGG代谢通路数据库的蛋白功能进行分类统计，结果如下所示。
+                                </p>
+                            
+                                <div class="content_img">
+                                    <img id="kegg_png" alt="kegg_png">
+                                </div>
+                                <h6>图3.7 KEGG数据库功能分类统计</h6>
+
+                        <h5 id="c_5_5">3.5.5 GO注释</h5>
+                                <p>
+                                    对注释到GO数据库的蛋白功能进行分类统计，结果如下所示。
+                                </p>
+                            
+                                <div class="content_img">
+                                    <img id="go_png" alt="go_png">
+                                </div>
+                                <h6>图3.8 GO数据库功能分类统计</h6>
+
+                        <h5 id="c_5_6">3.5.6 碳水化合物活性酶(CAZy)注释</h5>
+                                <p>
+                                    CAZy数据库收录了碳水化合物活性酶的两种常见模块：糖苷水解酶，糖基转移酶，多糖裂解酶，碳水化合物酯酶， 辅助活性酶等具有催化活性的模块，以及一个与碳水化合物结合的模块，共计六类，注释得到的不同模块的蛋白占比分布如下。
+                                </p>
+
+                                <h6> Table3.6 CAZy数据库注释 </h6>
+                                <div class="content_table">
+                                    {{ cazy_table | safe }}
+                                </div>
+
+                                <div class="content_img">
+                                    <img id="cazy_png" alt="cazy_png">
+                                </div>
+                                <h6>图3.9  CAZy数据库功能分类统计</h6>
+
+                        <h5 id="c_5_7">3.5.7 抗生素抗性(CARD)基因注释</h5>
+                                <p>
+                                    CARD(the Comprehensive Antibiotic Research Database)数据库包含了ARDB数据库中所有抗性信息,CARD数据库收集了超过1600个已知的抗生素抗性基因,抗生素抗性基因注释结果如下。(最多仅展示前十行)
+                                </p>
+
+                                <h6> Table3.7 CARD数据库注释 </h6>
+                                <div class="content_table">
+                                    {{ card_table | safe }}
+                                </div>
+
+                        <h5 id="c_5_8">3.5.8 毒力因子(VFDB)注释</h5>
+                                <p>
+                                    毒力因子数据库（VFDB）收集了有关细菌病原体毒力因子的信息。 自2004年成立以来， VFDB一直致力于提供来自各种医学重要细菌病原体的VF的最新知识，毒力因子注释结果如下。(最多仅展示前十行)
+                                </p>
+
+                                <h6> Table3.8 VFDB数据库注释 </h6>
+                                <div class="content_table">
+                                    {{ vfdb_table | safe }}
+                                </div>
+
+                        <h5 id="c_5_9">3.5.9 致病基因(PHI)注释</h5>
+                                <p>
+                                    PHI数据库是从文献中收集经过实验验证了的致病基因和效应基因的序列, PHI数据库的注释结果如下所示。(仅展示前十行)
+                                </p>
+
+                                <h6> Table3.8 PHI数据库注释 </h6>
+                                <div class="content_table">
+                                    {{ phi_table | safe }}
+                                </div>
+
+                                <div class="content_img">
+                                    <img id="phi_png" alt="phi_png">
+                                </div>
+                                <h6>图3.10  PHI数据库功能分类统计</h6>
 
 
                     </div>
@@ -834,6 +995,58 @@ pre {
                             第三圈代表 GC 含量；第四圈和第七圈代表每一个 CDS 所属的 COG；第五圈和第六圈代表 CDS、tRNA
                             及 rRNA 在基因组上的位置。
                         </p>
+
+                        <h4 id="d_5">5.5 基因功能注释</h4>
+                        <p>
+                        </p>
+
+                        <h5 id="d_5_1">5.5.1 NR 数据库注释</h5>
+                        <p>
+                           NR(Non-Redundant Protein Sequence Database)：全面的非冗余蛋白质数据库，包含了GenBank、EMBL、DDBJ、PDB 的全部非冗余蛋白，并建立了一个以核酸序列为基础的交叉索引，可以将蛋白质与核酸数据联系起来。 使用diamond进行氨基酸序列比对，筛选evalue小于1e-5，query cov 大于50%的匹配, subject cov 大于30%的匹配。
+                        </p>
+
+                        <h5 id="d_5_2">5.5.2 Swiss-Prot数据库注释</h5>
+                        <p>
+                            Swiss-Prot(Protein knowledgebas (review))：高质量的、手工注释的、非冗余的蛋白数据库，它是Uniprot数据库中的一个子库。 Uniprot （Universal Protein ）是包含蛋白质序列，功能信息，研究论文索引的蛋白质数据库， 整合了包括EBI（ European Bioinformatics Institute）， SIB（the Swiss Institute of Bioinformatics），PIR（Protein Information Resource）三大数据库的资源。 使用diamond进行氨基酸序列比对，筛选evalue小于1e-5，query cov 大于50%的匹配, subject cov 大于30%的匹配。
+                        </p>
+
+                        <h5 id="d_5_3">5.5.3 COG 数据库注释</h5>
+                        <p>
+                            Clusters of Orthologous Groups of proteins（直系同源蛋白簇）。COG是由NCBI创建并维护的蛋白数据库,根据细菌、藻类和真核生物完整基因组的编码蛋白系统进化关系分类构建而成。每一簇COG由直系同源蛋白序列构成,通过比对可以将某个蛋白序列归到某一个已知功能的COG中,从而可以推测该未知功能的蛋白的功能信息。 基于基因组bakta注释结果中的gff文件,提取COG注释ID信息,然后关联数据库信息，进行整理和统计。
+                        </p>
+
+                        <h5 id="d_5_4">5.5.4 KEGG 数据库注释</h5>
+                        <p>
+                            KEGG（Kyoto Encyclopedia of Gene and Genomes）是日本京都大学生物信息学中心于1995年建立的数据库， 该数据库描述了生物体中复杂的生物学通路，其丰富的通路信息能够帮助我们系统地了解蛋白的生物学功能， 如代谢通路、遗传信息传递以及细胞过程等一些复杂的生物功能。基于基因组bakta注释结果中的gff文件,提取KEGG注释ID信息,然后关联数据库信息，进行整理和统计。
+                        </p>
+
+                        <h5 id="d_5_5">5.5.5 GO 数据库注释</h5>
+                        <p>
+                            GO 的全称是 Gene Ontology，1988 年由基因本体联合会创立基因本体论数据库，其分为三大类：1）细胞学组件（Cellular Component）： 用于描述亚细胞结构、位置和大分子复合物，如核仁、端粒和识别起始的复合物等；2）分子功能（Molecular Function）：用于描述基因、 基因产物个体的功能，如与碳水化合物结合或 ATP 水解酶活性等；3）生物学途径（Biological Process）：用于描述分子功能的有序组合， 达成更广的生物功能，如有丝分裂或嘌呤代谢等。基于基因组bakta注释结果中的gff文件,提取GO注释ID信息,然后关联数据库信息，进行整理和统计。
+                        </p>
+
+                        <h5 id="d_5_6">5.5.6 CAZy 数据库注释</h5>
+                        <p>
+                            CAZy 全称为 Carbohydrate-Active enZYmes Database，碳水化合物酶相关的专业数据库，内容包括能催化碳水化合物降解、修饰、 以及生物合成的相关酶系家族。其包含五个主要分类：糖苷水解酶（Glycoside Hydrolases, GHs）、糖基转移酶（GlycosylTransferases, GTs）、 多糖裂解酶（Polysaccharide Lyases, PLs）、糖酯酶（Carbohydrate Esterases, CEs）和氧化还原酶（Auxiliary Activities, AAs）。此外，还包 含与碳水化合物结合结构域（Carbohydrate-Binding Modules， CBMs）。
+                            使用 Diamond 软件，把目标物种的氨基酸序列，与 CAZy 数据库进行比对，把目标物种的基因和其相对应的功能注释信息结合起来， 得到注释结果。由于每一条序列比对结果可能超过一条，为保证其生物意义，注释时保留一条最优比对结果作为该基因的注释。
+                        </p>
+
+                        <h5 id="d_5_7">5.5.7 CARD 数据库注释</h5>
+                        <p>
+                            CARD(Comprehensive Antibiotic Resistance Database): 综合性抗生素抗性数据库,是目前使用最广泛的抗性基因数据库之一,目前包括约4000个抗性基因分类。
+                        </p>
+
+                        <h5 id="d_5_8">5.5.8 VFDB 数据库注释</h5>
+                        <p>
+                            VFDB 数据库全称为 Virulence Factors of Pathogenic Bacteria，是致病细菌、衣原体和支原体的毒力因子数据库，除收录毒力基因的物种信息、基本特征描述外，还提供毒力基因功能和致病机制的详细描述。毒力因子是指微生物能够在特定物种的宿主内建立自身并增强其引起疾病的潜力的性质（即基因产物）。 毒力因素包括细菌毒素，介导细菌附着的细胞表面蛋白，细胞表面碳水化合物和保护细菌的蛋白， 以及可能有助于细菌致病性的水解酶。 使用 Diamond 软件，把目标物种的氨基酸序列，与 VFDB 数据库进行比对，把目标物种的基因和数据库注释信息结合起来。
+                        </p>
+
+                        <h5 id="d_5_9">5.5.9 PHI 数据库注释</h5>
+                        <p>
+                            PHI-base（Pathogen Host Interactions）,病原-宿主相互作用数据库。该数据库收录有,微生物中的、能影响病原-宿主相互作用的基因的信息。该数据库对寻找药物干预的靶基因研究有重要作用， 同时该数据库还包括抗真菌化合物和相应的靶基因。数据库中的每个基因都包含核酸和氨基酸序列， 以及感染宿主过程中预测的蛋白功能的详细描述。使用diamond进行氨基酸序列比对，筛选evalue小于1e-5，query cov 大于50%的匹配, subject cov 大于30%的匹配。
+                        </p>
+
+
                     </div>
 
                     <!-- 软件 -->
@@ -954,7 +1167,13 @@ License:  http://opensource.org/licenses/MIT
         top10_png: "{{ top10_png }}",
         depth_png: "{{ depth_png }}",
         genome_circos_png: "{{ genome_circos_png }}",
-        plasmid_circos_png: "{{ plasmid_circos_png }}"
+        plasmid_circos_png: "{{ plasmid_circos_png }}",
+        nr_png:"{{ nr_png }}",
+        cog_png:"{{ cog_png }}",
+        kegg_png:"{{ kegg_png }}",
+        go_png:"{{ go_png }}",
+        cazy_png:"{{ cazy_png }}",
+        phi_png:"{{ phi_png }}",
     };
 
     // 加载 Base64 图片到指定的 img 元素

@@ -220,7 +220,7 @@ process qc_stat {
   script:
     
   """  
-  python ${projectDir}/bin/02_Cleandata/get_qc_stat.py -raw ${sample_info_map.raw_qc}  -clean  ${sample_info_map.clean_qc}   -o ${sample_info_map.sample_label}_qc_stat.xls
+  ${params.software.python} ${projectDir}/bin/02_Cleandata/get_qc_stat.py -raw ${sample_info_map.raw_qc}  -clean  ${sample_info_map.clean_qc}   -o ${sample_info_map.sample_label}_qc_stat.xls
   """
 }
 
@@ -297,7 +297,7 @@ process top_10 {
   """
   # source /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate
   ${params.software.csvtk}  sort -t -k 7:nr  ${sample_info_map.bracken_out}|${params.software.csvtk} head|${params.software.csvtk} cut -t -f 1,6 >  top10.tsv
-  python ${projectDir}/bin/03_Decontamination/top10_plot.py  top10.tsv
+  ${params.software.python} ${projectDir}/bin/03_Decontamination/top10_plot.py  top10.tsv
   """
   
 }
@@ -345,10 +345,16 @@ process flye {
       rd = "-g ${genome_size} -c 250 "
   } else {
       // 提取数字部分并除以 1000000，加上 M
-      def number = sample_info_map.genome_size.replaceAll(/[^\d]/, '') as BigDecimal
-      genome_size = (number / 1000000).setScale(6, BigDecimal.ROUND_HALF_UP) + 'M'
-      gz = "--genome-size ${genome_size}"
-      rd = "-g ${genome_size} -c 250 "
+      // def number = sample_info_map.genome_size.replaceAll(/[^\d]/, '') as BigDecimal
+      // genome_size = (number / 1000000).setScale(6, BigDecimal.ROUND_HALF_UP) + 'M'
+      // gz = "--genome-size ${genome_size}"
+      // rd = "-g ${genome_size} -c 250 "
+      
+      def number = sample_info_map.genome_size.replaceAll(/[^\d]/, '') + 'M'
+      gz = "--genome-size ${number}"
+      rd = "-g ${number} -c 250 "
+
+
   }
   
 
@@ -363,7 +369,7 @@ process flye {
       ${gz} \
       --out-dir flye_out \
       --threads 10 \
-      --min-overlap 1000
+      --meta
       
   # if [[ \$? -eq 0 ]]; then
   # mv flye_out/assembly.fasta     ./${sample_info_map.sample_label}.draft_assembly.fasta
@@ -387,7 +393,7 @@ process reorder_and_summarize {
 
   script:
   """
-  python ${projectDir}/bin/04_Assembly/reorder_and_summarize_contigs.py   --fasta_file  ${flye_fa}  --stats_file  ${flye_out_stat}  --chunk_size ${params.chunk_size} --prefix ${sample_info_map.sample_label}
+  ${params.software.python} ${projectDir}/bin/04_Assembly/reorder_and_summarize_contigs.py   --fasta_file  ${flye_fa}  --stats_file  ${flye_out_stat}  --chunk_size ${params.chunk_size} --prefix ${sample_info_map.sample_label}
   """
     
 }
@@ -629,21 +635,23 @@ process assembly_stat {
   
   # 获取 phylum 信息
   species_name="${species_name}" 
-  phylum=\$(echo "\${species_name}" | cut -f1 -d ' ' | ${params.software.taxonkit} name2taxid | ${params.software.taxonkit} lineage -i 2  | ${params.software.taxonkit} reformat -i 3 -f "p__{p}" -F |cut -f4)
+  phylum=\$(echo "\${species_name}" | cut -f1 -d ' ' | ${params.software.taxonkit} name2taxid  --data-dir ${params.database.taxonomy} | ${params.software.taxonkit} lineage -i 2 --data-dir ${params.database.taxonomy} | ${params.software.taxonkit} reformat -i 3 -f "p__{p}" -F  --data-dir ${params.database.taxonomy} |cut -f4)
   echo \${phylum}
   # 判断是否属于 Actinomycetota
   if [[ "\${phylum}" == "p__Actinomycetota" ]]; then
     echo "Species belongs to Actinomycetota. Skipping contig_filter_and_sort.py..."
-    ${params.software.python}  ${projectDir}/bin/04_Assembly/get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_label}_contig_stat.xls
-    ln -s ${medaka_consence}  ${sample_info_map.sample_label}_assembly.fna
-    ln -s ${medaka_consence_fq} ${sample_info_map.sample_label}_assembly.fq
+    ${params.software.python}  ${projectDir}/bin/04_Assembly/get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_label}_contig_stat1.xls
+    ${params.software.python}  ${projectDir}/bin/04_Assembly/contig_filter_and_sort_2.py --contig_stat  ${sample_info_map.sample_label}_contig_stat1.xls  --in_fna  ${medaka_consence} --out_fna ${sample_info_map.sample_label}_assembly.fna  --out_stat  ${sample_info_map.sample_label}_contig_stat.xls
+    cut -f1 ${sample_info_map.sample_label}_contig_stat.xls | sed '1d'  > contig.list
+    ${params.software.seqtk}  subseq  ${medaka_consence_fq}  contig.list > ${sample_info_map.sample_label}_assembly.fq
+    
   else
     # 执行 contig_filter_and_sort.py
     # contig info summary
-  ${params.software.python}  ${projectDir}/bin/04_Assembly/get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_label}_contig_stat1.xls
-  ${params.software.python}  ${projectDir}/bin/04_Assembly/contig_filter_and_sort.py --contig_stat  ${sample_info_map.sample_label}_contig_stat1.xls  --in_fna  ${medaka_consence} --out_fna ${sample_info_map.sample_label}_assembly.fna  --out_stat  ${sample_info_map.sample_label}_contig_stat.xls
-  cut -f1 ${sample_info_map.sample_label}_contig_stat.xls | sed '1d'  > contig.list
-  ${params.software.seqtk}  subseq  ${medaka_consence_fq}  contig.list > ${sample_info_map.sample_label}_assembly.fq 
+    ${params.software.python}  ${projectDir}/bin/04_Assembly/get_report_contig_stat.py -gc assembly_gc.list -cov  ${sample_info_map.sample_label}_cov_dep.stat -circ ${sample_info_map.flye_stat}   -o ${sample_info_map.sample_label}_contig_stat1.xls
+    ${params.software.python}  ${projectDir}/bin/04_Assembly/contig_filter_and_sort.py --contig_stat  ${sample_info_map.sample_label}_contig_stat1.xls  --in_fna  ${medaka_consence} --out_fna ${sample_info_map.sample_label}_assembly.fna  --out_stat  ${sample_info_map.sample_label}_contig_stat.xls
+    cut -f1 ${sample_info_map.sample_label}_contig_stat.xls | sed '1d'  > contig.list
+    ${params.software.seqtk}  subseq  ${medaka_consence_fq}  contig.list > ${sample_info_map.sample_label}_assembly.fq 
   fi
 
   ${params.software.python}  ${projectDir}/bin/04_Assembly/get_bakta_replicon.py -i ${sample_info_map.sample_label}_contig_stat.xls -o ${sample_info_map.sample_label}_replicon.tsv
@@ -711,7 +719,7 @@ process depth_stat_png {
 }
 
 process bakata {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/05_Genome_Annotion/",  mode: "rellink", overwrite: true
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/05_Genome_Annotation/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
   tag "${sample_info_map.sample_label}.Try${task.attempt}"
@@ -779,6 +787,75 @@ process get_report {
 
 }
 
+process get_anno_report {
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/07_Report/",  mode: "rellink", overwrite: true
+  errorStrategy  { return 'retry'}
+  maxRetries 2
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
+
+  input:
+    tuple( val(sample_info_map),
+          path(nr_species_count_tsv),
+          path(nr_top5_tsv),
+          path(nr_top5_png),
+          path(go_anno_tsv),
+          path(go_stats_tsv),
+          path(go_png),
+          path(cog_category_tsv),
+          path(cog_category_counts_tsv),
+          path(category_barplot_png),
+          path(kegg_pathway_mapping_tsv),
+          path(kegg_level2_counts_tsv),
+          path(kegg_plot_png),
+          path(swissprot_out_tsv),
+          path(card_out_tsv),
+          path(phi_info_tsv),
+          path(phi_Mutant_Phenotype_stat_tsv),
+          path(phi_stat_tsv),
+          path(phi_Mutant_Phenotype_stat_png),
+          path(vfdb_out_tsv),
+          path(cazy_out_tsv),
+          path(cazy_png),
+    )
+
+  output:
+    tuple val(sample_info_map), path("${sample_info_map.sample_label}_report.html"),   emit:sample_info_tuple
+    
+  beforeScript 'source  /nas02/project/zhaolei/software/conda/conda_env/bininfo/bin/activate'
+  
+  script:
+  def species_name = sample_info_map.species_name.replaceAll(/^"(.*)"$/, '$1')
+
+  """
+  mkdir images
+  mkdir tables
+
+  ln -fs  ${sample_info_map.qc_stat}  tables/qc_stat.xls
+  ln -fs  ${sample_info_map.clean_data_png}  images/ont_reads_length.png
+  ln -fs  ${sample_info_map.top10_png} images/top10.png
+  ln -fs  ${sample_info_map.genome_stat} tables/assemble_stat_table.tsv
+  ln -fs  ${sample_info_map.contig_stat}  tables/contig_stat.xls
+  ln -fs  ${sample_info_map.circos_png}  images/genome_circos.png
+  ln -fs  ${sample_info_map.depth_png}  images/depth_coverage.png
+  mv  ${nr_top5_tsv} tables/nr_table.tsv  
+  mv  ${nr_top5_png} images/nr.png
+  mv  ${go_png}  images/go.png
+  mv  ${category_barplot_png} images/cog.png
+  mv  ${kegg_plot_png} images/kegg.png
+  head -n 11 ${swissprot_out_tsv} > tables/SwissProt_table.tsv 
+  head -n 11 ${card_out_tsv} > tables/card_table.tsv
+  head -n 11  ${phi_stat_tsv} > tables/phi_table.tsv
+  mv ${phi_Mutant_Phenotype_stat_png} images/phi.png
+  head -n 11 ${vfdb_out_tsv} > tables/vfdb_table.tsv
+  head -n 11 ${cazy_out_tsv} > tables/cazy_table.tsv
+  mv ${cazy_png}  images/cazy.png
+ 
+  ${params.software.python}  ${projectDir}/bin/06_report/get_summary.py  -p ${sample_info_map.project_id} -sp "${species_name}"  -s  tables/qc_stat.xls   -a tables/assemble_stat_table.tsv -cds ${sample_info_map.cds_tsv}   -o tables/pj_summary.xls
+  ${params.software.python}  ${projectDir}/bin/06_report/generate_report.py  -p ${sample_info_map.sample_label} -t ${projectDir}/bin/06_report/demo_anno_template.html  -c ${projectDir}/bin/06_report/anno_gene_report_config.ini
+  """
+
+}
+
 process get_release {
   publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
@@ -811,7 +888,7 @@ mkdir -p Rawdata
 # mkdir -p Release/Cleandata
 mkdir -p Release/Decontamination
 mkdir -p Release/Assembly
-mkdir -p Release/Genome_Annotion
+mkdir -p Release/Genome_Annotation
 mkdir -p Release/Report
 ln -fs  \${dir}/01_rawdata/${sample_info_map.sample_label}.cut_raw.fastq.gz               Rawdata/${sample_info_map.sample_label}.raw.fastq.gz
 # ln -fs  ${sample_info_map.raw_qc}                 Release/Rawdata/
@@ -825,20 +902,20 @@ ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_label}_assembly.f
 ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_label}_genome_stat.tsv           Release/Assembly/
 ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_label}_contig_stat.xls           Release/Assembly/
 ln -fs    \${dir}/04_Assembly/Realign/output_figures                           Release/Assembly/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.tsv                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.gff3                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.gbff                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.embl                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.fna                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.ffn                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.faa                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.inference.tsv                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.hypotheticals.tsv                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.hypotheticals.faa                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.txt                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.png                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.svg                          Release/Genome_Annotion/
-ln -fs    \${dir}/05_Genome_Annotion/${sample_info_map.sample_label}.json                          Release/Genome_Annotion/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.tsv                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.gff3                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.gbff                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.embl                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.fna                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.ffn                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.faa                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.inference.tsv                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.hypotheticals.tsv                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.hypotheticals.faa                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.txt                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.png                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.svg                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.json                          Release/Genome_Annotation/
 ln -fs    ${sample_info_map.report_html}            Release/Report
 ln -fs    ${projectDir}/bin/release_readme.txt      Release/Readme.txt
 
@@ -854,27 +931,78 @@ EOF
 }
 
 
+process get_release_2 {
+  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/",  mode: "rellink", overwrite: true
+  errorStrategy  { return 'retry'}
+  maxRetries 2
+  tag "${sample_info_map.sample_label}.Try${task.attempt}"
 
-workflow  {
-    in_ch = Channel.fromList([[project_id:"SD241222201239", sample_name:"1222-3", fastq_path:"/BSequenator03/24122301/no_sample/20241223_0225_P2S-02106-A_PBC02152_a58c68fb/fastq_pass/CWBar0215", barcode:"CWBar1055", species_name:"Escherichia coli",genome_size:"4M", data_volume:"500000000", barcode_type:"CW-Bar16bp-2208-1", sample_id:"B22412220003"],[project_id:"SD241222201239", sample_name:"1222-4", fastq_path:"/BSequenator03/24122301/no_sample/20241223_0225_P2S-02106-A_PBC02152_a58c68fb/fastq_pass/CWBar0216", barcode:"CWBar1056", species_name:"Escherichia coli", genome_size:"4M", data_volume:"500000000", barcode_type:"CW-Bar16bp-2208-1", sample_id:"B22412220004"]])
-      
-    
-    // in_ch.subscribe {maplist -> 
-        // println "$maplist"}
-    
-    // in_ch.view()
-    // ch_input.view()
-                
-    nanostat(in_ch)
-    nanostat.out.raw_qc.view()
-    nanostat.out.sample_info_map.view()
-    
+  input:
+    val(sample_info_map)
 
-    // nanostat.out.view()
+  output:
+    path("release.sh")
 
-    // fastcat(ch_input)
-    // fastcat.out.outp.view()
-    // nanoplot(fastcat.out.list)
-    // nanoplot.out.view()
+  script:
+  def labMapping = ['B': 'BJ', 'W': 'WH', 'T': 'TZ', 'S': 'SH', 'G': 'GZ']
+  def firstLetter = sample_info_map.sample_id?.charAt(0)
+  def labCode = labMapping["${firstLetter}"]
 
+
+  if (labCode == null) {
+      println "警告：样本来源实验室不明确，使用默认BJ"
+      labCode = "BJ"  // 或者其他默认值
+  }
+
+
+
+  """
+cat > release.sh << 'EOF'
+dir=\$(pwd)
+mkdir -p Rawdata
+# mkdir -p Release/Cleandata
+mkdir -p Release/Decontamination
+mkdir -p Release/Assembly
+mkdir -p Release/Genome_Annotation
+mkdir -p Release/Gene_function_annotation
+mkdir -p Release/Report
+ln -fs  \${dir}/01_rawdata/${sample_info_map.sample_label}.cut_raw.fastq.gz                         Rawdata/${sample_info_map.sample_label}.raw.fastq.gz
+# ln -fs  ${sample_info_map.raw_qc}                                                                 Release/Rawdata/
+# ln -fs  ${sample_info_map.clean_filt_data}                                                        Release/Cleandata
+# ln -fs  ${sample_info_map.clean_qc}                                                               Release/Cleandata
+# ln -fs  ${sample_info_map.qc_stat}                                                                Release/Cleandata
+ln -fs  \${dir}/03_Decontamination/top10.tsv                                                        Release/Decontamination
+# ln -fs    \${dir}/04_Assembly/${sample_info_map.sample_label}_updated_flye_stat.tsv               Release/Assembly/
+ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_label}_assembly.fna                  Release/Assembly/
+ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_label}_assembly.fq                   Release/Assembly/
+ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_label}_genome_stat.tsv               Release/Assembly/
+ln -fs    \${dir}/04_Assembly/Realign/${sample_info_map.sample_label}_contig_stat.xls               Release/Assembly/
+ln -fs    \${dir}/04_Assembly/Realign/output_figures                                                Release/Assembly/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.tsv                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.gff3                         Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.gbff                         Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.embl                         Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.fna                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.ffn                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.faa                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.inference.tsv                Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.hypotheticals.tsv            Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.hypotheticals.faa            Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.txt                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.png                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.svg                          Release/Genome_Annotation/
+ln -fs    \${dir}/05_Genome_Annotation/${sample_info_map.sample_label}.json                         Release/Genome_Annotation/
+ln -fs    \${dir}/06_Gene_annotation/*                                                              Release/Gene_function_annotation
+ln -fs    ${sample_info_map.report_html}            Release/Report
+ln -fs    ${projectDir}/bin/release_func_anno_readme.txt      Release/Readme.txt
+
+${params.software.zip}  -r  ${sample_info_map.sample_id}.zip   Release/
+${params.software.zip}  -r  ${sample_info_map.sample_id}_rawdata.zip  Rawdata/
+${params.software.ossutil64}  cp -f  ${sample_info_map.sample_id}.zip   oss://cwbiobj${sample_info_map.report_path}  -c ${params.database.ossconfig_bj}
+${params.software.ossutil64}  cp -f ${sample_info_map.sample_id}_rawdata.zip   oss://cwbiobj${sample_info_map.report_raw_path}  -c ${params.database.ossconfig_bj}
+echo -e "${sample_info_map.sample_id}\\tseqconfirm\\t${sample_info_map.report_path}\\t-\\t-" > ${sample_info_map.sample_id}.judge.txt
+${params.software.java} -jar ${projectDir}/script/resources/CwbioPutDataLims.V2.jar --config ${projectDir}/script/resources/config/config.properties.${labCode}  --path ${sample_info_map.sample_id}.judge.txt
+
+EOF
+  """
 }

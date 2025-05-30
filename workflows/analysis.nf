@@ -22,7 +22,9 @@ include { nanostat;
           re_align;
           assembly_stat;
           get_report;
+          get_anno_report;
           get_release;
+          get_release_2;
 } from "../modules/software_analysis.nf"
 
 
@@ -77,7 +79,7 @@ workflow clean {
     filtlong(fastplong_out_ch)
     filtlong_out_ch = filtlong.out.sample_info_tuple
                           .map { samples_info, clean_filt_data ->
-                            samples_info + ["clean_filt_data": clean_filt_data.toString()]
+                            samples_info + ["clean_filt_data": clean_filt_data]
                           }
     
     nanoplot(filtlong_out_ch)
@@ -89,7 +91,7 @@ workflow clean {
     qc_stat(nanoplot_out_ch)
     qc_stat_out_ch = qc_stat.out.sample_info_tuple
                         .map { samples_info, qc_stat  ->
-                          samples_info + ["qc_stat" : qc_stat.toString()]
+                          samples_info + ["qc_stat" : qc_stat]
                         }
   
   emit:
@@ -237,18 +239,28 @@ workflow release {
     get_release.out
 }
 
-// workflow report2 {
-//   take:
-//     sample_info_map
-  
-//   main:
-//     get_report(sample_info_map)
-//     get_report_out_ch = get_report.out.sample_info_tuple
-//                           .map {samples_info, report_html ->
-//                           samples_info + ["report_html": report_html]
-//                           }
+workflow report2 {
+  take:
+    sample_info_map_tuple
+     
+  main:
+    get_anno_report(sample_info_map_tuple)
+    get_anno_report_out_ch = get_anno_report.out.sample_info_tuple
+                          .map {samples_info, report_html ->
+                          samples_info + ["report_html": report_html]
+                          }
 
-//   emit:
-//     report_out = get_report_out_ch
-// }
+  emit:
+    report_out = get_anno_report_out_ch
+ }
 
+workflow release2 {
+  take:
+    sample_info_map
+
+  main:
+    get_release_2(sample_info_map)
+
+  emit:
+    get_release_2.out
+}

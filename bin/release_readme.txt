@@ -9,7 +9,7 @@ Release/
 ├── Genome_Annotion
 │   ├── sample_name.embl -> EMBL格式的注释和序列  
 │   ├── sample_name.faa -> CDS/sORF氨基酸FASTA序列
-│   ├── sample_name.ffn -> 特征核苷酸FASTA序列
+│   ├── sample_name.ffn -> CDS/sORF核苷酸FASTA序列
 │   ├── sample_name.fna -> 基因组FASTA序列
 │   ├── sample_name.gbff -> GenBank格式的注释和序列
 │   ├── sample_name.gff3 -> GFF3格式的注释和序列

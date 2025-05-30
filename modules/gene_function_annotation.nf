@@ -1,7 +1,7 @@
 nextflow.enable.dsl=2
 
 process extract_gene_id {
-  publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/06_Gene_annotation/",  mode: "rellink", overwrite: true
+  // publishDir path: "${params.out_dir}/${sample_info_map.sample_label}/06_Gene_annotation/",  mode: "rellink", overwrite: true
   errorStrategy  { return 'retry'}
   maxRetries 2
   tag "${sample_info_map.sample_label}.Try${task.attempt}"
@@ -44,11 +44,11 @@ process nr_anno {
       -q ${sample_info_map.cds_faa}  \
       -e 1e-5  --query-cover 50 --subject-cover 30  \
       --outfmt  6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids \
-      --max-target-seqs 10 \
+      --max-target-seqs 3 \
       -o  ${sample_info_map.sample_label}_nr_blast.xls
   
   # 获取taxid
-  cut -f 13 ${sample_info_map.sample_label}_nr_blast.xls| tr ';' '\\n' | sort | uniq -c |  awk '\$2 ~ /^[0-9]+\$/ {print \$2 "\\t" \$1}' | sort -k2,2 -nr |${params.software.taxonkit}   lineage  -n  |sed 1i'#Taxid\\tCount\\tLineage\\tSpecies' > ${sample_info_map.sample_label}_nr_seq2taxid.list
+  cut -f 13 ${sample_info_map.sample_label}_nr_blast.xls| tr ';' '\\n' | sort | uniq -c |  awk '\$2 ~ /^[0-9]+\$/ {print \$2 "\\t" \$1}' | sort -k2,2 -nr |${params.software.taxonkit}   lineage  -n  --data-dir ${params.database.taxonomy} |sed 1i'#Taxid\\tCount\\tLineage\\tSpecies' > ${sample_info_map.sample_label}_nr_seq2taxid.list
   
   # 得到物种和计数
   sh  ${projectDir}/bin/gene_annotation/NR/tax_sort_count.sh  ${sample_info_map.sample_label}_nr_seq2taxid.list  ${sample_info_map.sample_label}_nr_species_count.tsv  ${sample_info_map.sample_label}_nr_top5.tsv
