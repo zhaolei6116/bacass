@@ -86,9 +86,9 @@ workflow clean {
     nanoplot_out_ch = nanoplot.out.sample_info_tuple
                           .map { samples_info, clean_qc, clean_data_png ->
                             samples_info + ["clean_qc" : clean_qc, "clean_data_png":clean_data_png]
-                          }
+                          }.view()
     
-    qc_stat(nanoplot_out_ch)
+    qc_stat(nanoplot_out_ch).view()
     qc_stat_out_ch = qc_stat.out.sample_info_tuple
                         .map { samples_info, qc_stat  ->
                           samples_info + ["qc_stat" : qc_stat]
