@@ -331,9 +331,9 @@ process flye {
 
 
   // 使用 Groovy 判断和处理输入
-  def genome_size = sample_info_map.genome_size
-  def gz = "--genome-size ${genome_size}"
-  def rd = "-g ${genome_size}"
+  def genome_size = ""
+  def gz = ""
+  def rd = ""
 
   if (sample_info_map.genome_size =~ /-/) {
       gz = ""
@@ -349,10 +349,10 @@ process flye {
       // genome_size = (number / 1000000).setScale(6, BigDecimal.ROUND_HALF_UP) + 'M'
       // gz = "--genome-size ${genome_size}"
       // rd = "-g ${genome_size} -c 250 "
-      
-      def number = sample_info_map.genome_size.replaceAll(/[^\d]/, '') + 'M'
-      gz = "--genome-size ${number}"
-      rd = "-g ${number} -c 250 "
+      BigDecimal number = sample_info_map.genome_size as BigDecimal
+      genome_size = number.setScale(2, BigDecimal.ROUND_HALF_UP) + 'M'
+      gz = "--genome-size ${genome_size}"
+      rd = "-g ${genome_size} -c 250 "
 
 
   }
